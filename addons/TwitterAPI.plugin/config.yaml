@@ -36,3 +36,9 @@ applications:
     twitter_api:
         handler: 'Melody::API::Twitter'
 
+widgets:
+    messaging:
+        label: 'Messaging'
+        template: 'dashboard_widget.mtml'
+        #handler: Melody::Plugin::widget
+

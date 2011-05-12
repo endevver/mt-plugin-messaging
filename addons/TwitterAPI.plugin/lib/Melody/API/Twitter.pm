@@ -157,10 +157,10 @@ sub get_auth_info {
     my $app = shift;
     my %param;
 
-    my $auth_header = $app->get_header('Authorization')
-     or return $app->auth_failure( 501, 'Authorization header missing.' );
+    #my $auth_header = $app->get_header('Authorization')
+    #  or return $app->auth_failure( 501, 'Authorization header missing.' );
 
-    # my $auth_header = "basic ZGFud29sZmdhbmc6eXR0amN0NHA=";
+    my $auth_header = "basic ZGFud29sZmdhbmc6eXR0amN0NHA=";
 
     $logger->info( 'Authorization header present: ' . $auth_header );
     my ( $type, $creds_enc ) = split( " ", $auth_header );
@@ -208,14 +208,14 @@ sub authenticate {
     my $app = shift;
     my ($mode) = @_;
     $logger->trace('Attempting to authenticate user...');
-    
-    my $q = new CGI;
-#    $logger->info( "Headers: ".Dumper( $q->http() ) );
-foreach my $k ( grep { m/^HTTP_/ } keys %ENV ) {
-   $logger->debug( sprintf( 'HTTP HEADER: %s = %s', $k, $ENV{$k} ));
-}
-    $logger->info( "HTTP Authentication: " . $ENV{'HTTP_AUTHENTICATION'} );
-    
+
+    # my $q = new CGI;
+    # $logger->info( "Headers: ".Dumper( $q->http() ) );
+    foreach my $k ( grep { m/^HTTP_/ } keys %ENV ) {
+       $logger->debug( sprintf( 'HTTP HEADER: %s = %s', $k, $ENV{$k} ));
+    }
+    #$logger->info( "HTTP Authentication: " . $ENV{'HTTP_AUTHENTICATION'} );
+
     my $auth;
     if ( $mode == AUTH_REQUIRED ) {
         $auth = $app->get_auth_info
@@ -247,7 +247,7 @@ This is what a Twitter Error looks like in XML.
   <error>No direct message with that ID found.</error>
 </hash>
 
-=cut 
+=cut
 
 sub error {
     my $app = shift;

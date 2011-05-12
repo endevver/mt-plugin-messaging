@@ -65,4 +65,8 @@ sub create {
     my $result = $nt->update({'Hello world!'});
 }
 
+sub widget {
+    my ($app, $tmpl, $widget_param) = @_;
+}
+
 1;
