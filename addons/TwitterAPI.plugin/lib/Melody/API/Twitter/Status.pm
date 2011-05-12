@@ -2,7 +2,8 @@ package Melody::API::Twitter::Status;
 
 use base qw( Melody::API::Twitter );
 use Melody::API::Twitter::Util
-  qw( serialize_author twitter_date truncate_tweet serialize_entries is_number load_friends load_followers latest_status mark_favorites );
+  qw( serialize_author twitter_date truncate_tweet serialize_entries is_number 
+      load_friends load_followers latest_status mark_favorites );
 
 ###########################################################################
 
@@ -27,22 +28,23 @@ Response: An array statuses.
 sub public_timeline {
     my $app      = shift;
     my ($params) = @_;      # this method takes no input
-    my $terms    = {};
+
+    my $terms    = { };
     my $args     = {
         sort_by   => 'created_on',
         direction => 'descend',
     };
-    my $iter = MT->model('entry')->load_iter( $terms, $args ); # load everything
+    my $iter = MT->model('tw_message')->load_iter( $terms, $args ); # load everything
     my @entries;
     my $n = 20;
     my $i = 0;
-  ENTRY: while ( my $e = $iter->() ) {
-        push @entries, $e;
+  MESSAGE: while ( my $m = $iter->() ) {
+        push @messages, $m;
         $i++;
         $iter->end, last if $n && $i >= $n;
     }
     my $statusus;
-    $statuses = serialize_entries( \@entries );
+    $statuses = serialize_entries( \@messages );
     return { statuses => { status => $statuses } };
 }
 
@@ -97,7 +99,8 @@ sub home_timeline {
     my $app = shift;
     return unless $app->SUPER::authenticate(AUTH_REQUIRED);
     my ($params) = @_;
-    my $terms    = {};
+
+    my $terms    = { };
     my $args     = {
         sort_by   => 'created_on',
         direction => 'descend',
@@ -127,18 +130,18 @@ sub home_timeline {
     my @friends_ids = keys %$friends;
     $terms->{author_id} = \@friends_ids;
 
-    my $iter = MT->model('entry')->load_iter( $terms, $args ); # load everything
-    my @entries;
+    my $iter = MT->model('tw_message')->load_iter( $terms, $args ); # load everything
+    my @messages;
 
     my $i = 0;
-  ENTRY: while ( my $e = $iter->() ) {
-        push @entries, $e;
+  MESSAGE: while ( my $m = $iter->() ) {
+        push @entries, $m;
         $i++;
 
         #      $iter->end, last if $n && $i >= $n;
     }
     my $statusus;
-    $statuses = serialize_entries( \@entries );
+    $statuses = serialize_entries( \@messages );
     mark_favorites( $statuses, $app->user );
     return { statuses => { status => $statuses } };
 }
@@ -210,7 +213,11 @@ sub user_timeline {
     my $app       = shift;
     my $is_authed = $app->SUPER::authenticate(AUTH_OPTIONAL);
     my ($params)  = @_;
-    my $terms     = {};
+
+use Data::Dumper;
+MT->log("User timeline params: ".Dumper($params));
+
+    my $terms    = { };
     my $args      = {
         sort_by   => 'created_on',
         direction => 'descend',
@@ -262,18 +269,18 @@ sub user_timeline {
     $args->{limit} = $n;
     $args->{offset} = ( $n * ( $page - 1 ) ) if $page > 1;
 
-    my $iter = MT->model('entry')->load_iter( $terms, $args ); # load everything
-    my @entries;
+    my $iter = MT->model('tw_message')->load_iter( $terms, $args ); # load everything
+    my @messages;
 
     my $i = 0;
-  ENTRY: while ( my $e = $iter->() ) {
-        push @entries, $e;
+  MESSAGE: while ( my $m = $iter->() ) {
+        push @messages, $m;
         $i++;
 
         #      $iter->end, last if $n && $i >= $n;
     }
     my $statusus;
-    $statuses = serialize_entries( \@entries );
+    $statuses = serialize_entries( \@messages );
     return { statuses => { status => $statuses } };
 }
 
@@ -286,7 +293,8 @@ sub friends_timeline {
     my $app = shift;
     return unless $app->SUPER::authenticate();
     my ($params) = @_;
-    my $terms    = {};
+
+    my $terms    = { };
     my $args     = {
         sort_by   => 'created_on',
         direction => 'descend',
@@ -315,18 +323,18 @@ sub friends_timeline {
     my @friends_ids = keys %$friends;
     $terms->{author_id} = \@friends_ids;
 
-    my $iter = MT->model('entry')->load_iter( $terms, $args ); # load everything
-    my @entries;
+    my $iter = MT->model('tw_message')->load_iter( $terms, $args ); # load everything
+    my @messages;
 
     my $i = 0;
-  ENTRY: while ( my $e = $iter->() ) {
-        push @entries, $e;
+  MESSAGE: while ( my $m = $iter->() ) {
+        push @messages, $m;
         $i++;
 
         #      $iter->end, last if $n && $i >= $n;
     }
     my $statusus;
-    $statuses = serialize_entries( \@entries );
+    $statuses = serialize_entries( \@messages );
     return { statuses => { status => $statuses } };
 }
 
@@ -391,7 +399,7 @@ sub show {
     else {
         return $app->error( 404, 'No status message specified.' );
     }
-    my $e = MT->model('entry')->load($id);      # load everything
+    my $e = MT->model('tw_message')->load($id);      # load everything
     my $statuses = serialize_entries( [$e] );
     return { status => @$statuses[0] };
 }
@@ -493,21 +501,28 @@ providing a method to remove geotags from individual tweets.
 
 sub update {
     my $app = shift;
-    my ($params) = @_;    # this method takes no input
 
     return unless $app->SUPER::authenticate(AUTH_REQUIRED);
 
+    my ($params) = @_;
+
+    # For some reason @_ is empty, and therefore doesn't contain the supplied status message?
+    #$params->{status} = 'This is a new message!';
+    use Data::Dumper;
+    MT->log('Starting a status update with params: '.Dumper($params) );
+
     my ( $msg, $in_reply_to, $lat, $long );
     if ( $app->request_method ne 'POST' ) {
-
-        # TODO - reject request
+        return $app->error( 500, 'Request must be a POST.' );
     }
+
     if ( $params->{status} ) {
         $msg = $params->{status};
     }
     else {
         return $app->error( 500, 'No status message provided.' );
     }
+
     if ( $params->{in_reply_to_status_id} ) {
         $in_reply_to = $params->{in_reply_to_status_id};
     }
@@ -534,45 +549,45 @@ sub update {
     my $truncated;
     ( $truncated, $msg ) = truncate_tweet($msg);
 
-    print STDERR "Saving tweet: $msg";
-    my $e = MT->model('entry')->new;
-    $e->title($msg);
-    $e->author_id( $app->user->id );
-    $e->status( MT->model('entry')->RELEASE() );
-
-    # TODO - the blog id must not be static
-    $e->blog_id(5);
+    MT->log("Saving tweet: $msg");
+    my $m = MT->model('tw_message')->new;
+    $m->text($msg);
+    $m->created_by( $app->user->id );
+    $m->status( MT->model('tw_message')->SHOW() );
 
     if ( $lat && $long ) {
-        $e->geo_latitude($lat);
-        $e->geo_longitude($long);
+        $m->geo_latitude($lat);
+        $m->geo_longitude($long);
     }
 
-    $e->save;
-    print STDERR "Tweet saved with id: " . $e->id;
-    my $statuses = serialize_entries( [$e] );
+    $m->save or die $m->errstr;
+    MT->log("Tweet saved with id: " . $m->id);
+    my $statuses = serialize_entries( [$m] );
     return { status => @$statuses[0] };
 }
 
 ###########################################################################
 
-=head2 statuses/destroy  
+=head2 statuses/destroy
+
+Delete a message.
+
 =cut
 
 sub destroy {
     my $app = shift;
-    my ($params) = @_;    # this method takes no input
+    my ($params) = @_;
     return unless $app->SUPER::authenticate(AUTH_REQUIRED);
 
     my $id = $params->{id};
-    my $e  = MT->model('entry')->load($id);
-    unless ($e) {
+    my $m  = MT->model('tw_message')->load($id);
+    unless ($m) {
         return $app->error( 404, 'Status message ' . $id . ' not found.' );
     }
-    if ( $e->author_id == $app->user->id ) {
-        $e->remove;
+    if ( $m->author_id == $app->user->id ) {
+        $m->remove;
     }
-    return { status => serialize_entries( [$e] ) };
+    return { status => serialize_entries( [$m] ) };
 }
 
 ###########################################################################

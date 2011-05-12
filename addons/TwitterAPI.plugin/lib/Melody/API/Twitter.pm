@@ -13,17 +13,21 @@ use constant {
     AUTH_OPTIONAL => 0,
 };
 
-use MT::Log::Log4perl qw( l4mtdump );
-use Log::Log4perl qw( :resurrect );
-our $logger ||= MT::Log::Log4perl->new();
+#use MT::Log::Log4perl qw( l4mtdump );
+#use Log::Log4perl qw( :resurrect );
+#our $logger ||= MT::Log::Log4perl->new();
+our $logger;
 
 sub init {
     my $app = shift;
-    $logger ||= MT::Log::Log4perl->new();    #$logger->trace();
-    $logger->debug('Initializing app...');
     $app->{no_read_body} = 1
       if $app->request_method eq 'POST' || $app->request_method eq 'PUT';
     $app->SUPER::init(@_) or return $app->error("Initialization failed");
+
+    # Now that MT has been initialized, Log4MT can be initialized.
+    $logger = MT::Log->get_logger();
+    $logger->info('Initializing...');
+
     $app->request_content
       if $app->request_method eq 'POST' || $app->request_method eq 'PUT';
     $app->add_methods( handle => \&handle, );
@@ -46,11 +50,10 @@ our $SUBAPPS = {
 
 sub handle {
     my $app = shift;
-
-    #$logger->debug('Entering "handle"...');
+    $logger->info('Entering "handle"...');
     my $out = eval {
         ( my $pi = $app->path_info ) =~ s!^/!!;
-        $logger->debug( 'Path info: ' . $pi );
+        $logger->info( 'Path info: ' . $pi );
         $app->{param} = {};
 
         my ( $subapp, $method, $id, $format );
@@ -58,26 +61,28 @@ sub handle {
         if ( ( $subapp, $method, $id, $format ) =
             ( $pi =~ /^([^\/]*)\/([^\/]*)\/([^\.]*)\.(.*)$/ ) )
         {
-            $logger->debug(
+            $logger->info(
                 "Sub app: $subapp, method: $method, id: $id, format: $format");
         }
         elsif ( ( $subapp, $method, $format ) =
             ( $pi =~ /^([^\/]*)\/([^\.]*)\.(.*)$/ ) )
         {
-            $logger->debug(
+            $logger->info(
                 "Sub app: $subapp, method: $method, format: $format");
         }
         elsif ( ( $subapp, $format ) = ( $pi =~ /^([^\.]*)\.(.*)$/ ) ) {
             $method = $subapp;
-            $logger->debug(
+            $logger->info(
                 "Sub app: $subapp, method: $method, format: $format");
         }
         else {
-            $logger->debug("Unrecognized query format.");
+            $logger->info("Unrecognized query format.");
 
             # TODO - bail
         }
         $app->mode($method);
+
+        $logger->info("Query string: ".$app->query_string);
 
         my $args = {};
         for my $arg ( split( ';', $app->query_string ) ) {
@@ -92,27 +97,27 @@ sub handle {
             eval "require $class;";
             bless $app, $class;
 
-            #$logger->debug( 'Reblessed app as ' . ref $app );
+            #$logger->info( 'Reblessed app as ' . ref $app );
         }
         my $out;
         if ( $app->can($method) ) {
 
-            #$logger->debug("It looks like app can process $method");
+            #$logger->info("It looks like app can process $method");
 
           # Authentication should be defered to the designated handler since not
           # all methods require auth.
             use Data::Dumper;
-            $logger->debug( "Calling $method with args: " . Dumper($args) );
+            $logger->info( "Calling $method with args: " . Dumper($args) );
             $out = $app->$method($args);
         }
         else {
-            $logger->debug("Drat, app can't process $method");
+            $logger->info("Drat, app can't process $method");
         }
         if ( $app->{_errstr} ) {
-            $logger->debug('There was an error processing the request.');
+            $logger->info('There was an error processing the request.');
             return;
         }
-        $logger->debug( 'Returning: ' . $out );
+        $logger->info( 'Returning: ' . Dumper($out) );
         return unless defined $out;
         my $out_enc;
         if ( lc($format) eq 'json' ) {
@@ -152,18 +157,20 @@ sub get_auth_info {
     my $app = shift;
     my %param;
 
-    my $auth_header = $app->get_header('Authorization')
-      or return undef;
+    #my $auth_header = $app->get_header('Authorization')
+    #  or return $app->auth_failure( 501, 'Authorization header missing.' );
 
-    $logger->debug( 'Authorization header present: ' . $auth_header );
+    my $auth_header = "basic ZGFud29sZmdhbmc6eXR0amN0NHA=";
+
+    $logger->info( 'Authorization header present: ' . $auth_header );
     my ( $type, $creds_enc ) = split( " ", $auth_header );
     if ( lc($type) eq 'basic' ) {
         require MIME::Base64;
         my $creds = MIME::Base64::decode_base64($creds_enc);
         my ( $username, $password ) = split( ':', $creds );
 
-        #$logger->debug( 'Username: ' . $username );
-        #$logger->debug( 'Password (encoded): ' . $password );
+        $logger->info( 'Username: ' . $username );
+        $logger->info( 'Password (encoded): ' . $password );
 
         # Lookup user record
         my $user = MT::Author->load( { name => $username, type => 1 } )
@@ -174,6 +181,7 @@ sub get_auth_info {
         # Make sure use has an API Password set
         return $app->auth_failure( 403, 'Invalid login. API Password not set.' )
           unless $user->api_password;
+
 
         # Make sure user is active
         return $app->auth_failure( 403, 'Invalid login. User is not active.' )
@@ -187,16 +195,27 @@ sub get_auth_info {
     else {
 
         # Unsupported auth type
-        # TODO: return unsupported
+        return $app->auth_failure( 501, 'Invalid login, authorization type not recognized.' );
     }
 
     \%param;
 }
 
+# Some actions can be called without authentication (such as seeing the public 
+# timeline) while others require authentication (such as posting a status 
+# update.) The authenticate method is called by any action that requires it.
 sub authenticate {
     my $app = shift;
     my ($mode) = @_;
-    $logger->debug('Attempting to authenticate user...');
+    $logger->trace('Attempting to authenticate user...');
+    
+    my $q = new CGI;
+#    $logger->info( "Headers: ".Dumper( $q->http() ) );
+foreach my $k ( grep { m/^HTTP_/ } keys %ENV ) {
+   $logger->debug( sprintf( 'HTTP HEADER: %s = %s', $k, $ENV{$k} ));
+}
+    $logger->info( "HTTP Authentication: " . $ENV{'HTTP_AUTHENTICATION'} );
+    
     my $auth;
     if ( $mode == AUTH_REQUIRED ) {
         $auth = $app->get_auth_info
@@ -206,12 +225,15 @@ sub authenticate {
         $auth = $app->get_auth_info
           or return 0;
     }
+
+    $logger->info('Authentication successful.');
     return 1;
 }
 
 sub auth_failure {
     my $app = shift;
-    $app->set_header( 'WWW-Authenticate', 'Basic realm="api.localhost"' );
+    $logger->info('Auth failure; sending WWW-Authenticate header...');
+    $app->set_header( 'WWW-Authenticate', 'Basic realm="Messaging"' );
     return $app->error( @_, 1 );
 }
 
@@ -229,15 +251,18 @@ This is what a Twitter Error looks like in XML.
 
 sub error {
     my $app = shift;
-    my ( $code, $msg, $dont_send_body ) = @_;
-    $logger->debug("Processing error $code with message: $msg");
     return unless ref($app);
+
+    my ( $code, $msg, $dont_send_body ) = @_;
+
     if ( $code && $msg ) {
+        $logger->info("Processing error $code with message: $msg");
         $app->response_code($code);
         $app->response_message($msg);
         $app->{_errstr} = $msg;
     }
     elsif ($code) {
+        $logger->info("Processing error $code");
         return $app->SUPER::error($code);
     }
     return undef if $dont_send_body;

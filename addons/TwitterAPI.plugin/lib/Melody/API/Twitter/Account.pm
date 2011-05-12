@@ -36,7 +36,6 @@ sub verify_credentials {
 
     my $user = $app->user;
     return { user => serialize_author($user) };
-
 }
 
 ###########################################################################

@@ -2,17 +2,6 @@ package Melody::API::Twitter::Callbacks;
 
 use strict;
 
-sub entry_post_remove {
-    my ( $cb, $obj ) = @_;
-    MT->model('tw_favorite')->remove(
-        {
-            obj_type => 'entry',
-            obj_id   => $obj->id,
-        }
-    );
-    return 1;
-}
-
 sub author_post_remove {
     my ( $cb, $obj ) = @_;
 

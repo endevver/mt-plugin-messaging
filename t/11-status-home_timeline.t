@@ -3,17 +3,20 @@
 use strict;
 
 use Net::Twitter;
+use Data::Dumper;
 
 my $nt = Net::Twitter->new(
-   apiurl   => "http://api.localhost",
-   username => "byrnereese",
-   password => "obp1dzbe",
+    traits   => [qw/Legacy/],
+    apiurl   => "http://localhost/cgi-bin/mt435/twitter.cgi",
+    username => "danwolfgang",
+    password => "yttjct4p",
 );
 
+my $result;
+
 eval {
-    my $result = $nt->public_timeline();
-    use Data::Dumper;
-    print "Result: " . Dumper($result) . "\n";
+    my $result = $nt->home_timeline();
+    print "Home Timeline result: " . Dumper($result) . "\n";
 };
 if ( my $err = $@ ) {
     die $@ unless blessed $err && $err->isa('Net::Twitter::Error');
