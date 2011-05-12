@@ -1,26 +1,34 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+use Data::Dumper;
+use Test::More qw(no_plan);
 
 use Net::Twitter;
-use Data::Dumper;
+
+my ($apiurl, $apiuser, $apipass)
+    = @ENV{qw(TWITTERAPIURL TWITTERAPIUSER TWITTERAPIPASS)};
+die "TWITTERAPIURL environment variable not defined" unless $apiurl;
+die "TWITTERAPIUSER environment variable not defined" unless $apiuser;
+die "TWITTERAPIPASS environment variable not defined" unless $apipass;
 
 my $nt = Net::Twitter->new(
     traits   => [qw/Legacy/],
-    apiurl   => "http://localhost/cgi-bin/mt435/twitter.cgi",
-    username => "danwolfgang",
-    password => "yttjct4p",
+    apiurl   => $apiurl,
+    username => $apiuser,
+    password => $apipass,
 );
 
-my $result;
+my $result = eval { $nt->update('Hello world!'); };
+# my $result = eval {
+#     $nt->update({
+#         status => "A test message!",
+#     });
+# };
+# is_deeply( $result, { ok => 'true' }, 'Test return value');
+diag "Result: " . Dumper($result);
 
-eval {
-    my $result = $nt->update('Hello world!');
-#    my $result = $nt->update({
-#        status => "A test message!",
-#    },);
-    print "Result: " . Dumper($result) . "\n";
-};
 if ($@) {
     print "error! ". Dumper($@);
 }

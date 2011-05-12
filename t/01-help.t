@@ -3,19 +3,21 @@
 use strict;
 use warnings;
 use Data::Dumper;
-
 use Test::More tests => 2;
 
 use Net::Twitter;
 
-my $apiurl = $ENV{TWITTERAPIURL};
+my ($apiurl, $apiuser, $apipass)
+    = @ENV{qw(TWITTERAPIURL TWITTERAPIUSER TWITTERAPIPASS)};
 die "TWITTERAPIURL environment variable not defined" unless $apiurl;
+die "TWITTERAPIUSER environment variable not defined" unless $apiuser;
+die "TWITTERAPIPASS environment variable not defined" unless $apipass;
 
 my $nt = Net::Twitter->new(
     traits   => [qw/Legacy/],
     apiurl   => $apiurl,
-    username => "danwolfgang",
-    password => "yttjct4p",
+    username => $apiuser,
+    password => $apipass,
 );
 
 isa_ok($nt, 'Net::Twitter', 'Net::Twitter object');
