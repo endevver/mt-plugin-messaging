@@ -1,21 +1,28 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+use Data::Dumper;
+
+use Test::More tests => 2;
 
 use Net::Twitter;
 
+my $apiurl = $ENV{TWITTERAPIURL};
+die "TWITTERAPIURL environment variable not defined" unless $apiurl;
+
 my $nt = Net::Twitter->new(
     traits   => [qw/Legacy/],
-    apiurl   => "http://localhost/cgi-bin/mt435/twitter.cgi",
+    apiurl   => $apiurl,
     username => "danwolfgang",
     password => "yttjct4p",
 );
 
-eval {
-    my $result = $nt->test();
-    use Data::Dumper;
-    print "Result: " . Dumper($result) . "\n";
-};
+isa_ok($nt, 'Net::Twitter', 'Net::Twitter object');
+
+my $result = eval { $nt->test(); };
+is_deeply( $result, { ok => 'true' }, 'Test return value');
+
 if ( my $err = $@ ) {
     die $@ unless blessed $err && $err->isa('Net::Twitter::Error');
     warn "HTTP Response Code: ", $err->code, "\n",
