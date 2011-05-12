@@ -3,6 +3,7 @@
 use strict;
 
 use Net::Twitter;
+use Data::Dumper;
 
 my $nt = Net::Twitter->new(
     traits   => [qw/Legacy/],
@@ -11,10 +12,13 @@ my $nt = Net::Twitter->new(
     password => "yttjct4p",
 );
 
+my $result;
+
 eval {
-    my $result = $nt->test();
-    use Data::Dumper;
-    print "Result: " . Dumper($result) . "\n";
+    my $result = $nt->user_timeline({
+        user_id => 'danwolfgang',
+    });
+    print "User Timeline result: " . Dumper($result) . "\n";
 };
 if ( my $err = $@ ) {
     die $@ unless blessed $err && $err->isa('Net::Twitter::Error');

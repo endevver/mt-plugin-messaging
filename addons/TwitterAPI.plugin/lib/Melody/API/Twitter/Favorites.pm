@@ -82,10 +82,10 @@ sub favorites {
         #      $iter->end, last if $n && $i >= $n;
     }
 
-    my @entries = MT->model('entry')->load( { id => \@ids } );
+    my @messages = MT->model('tw_message')->load( { id => \@ids } );
 
     my $statusus;
-    $statuses = serialize_entries( \@entries );
+    $statuses = serialize_entries( \@messageses );
     foreach (@$statuses) { $_->{favorited} = 'true'; }
     return { statuses => { status => $statuses } };
 
@@ -126,14 +126,14 @@ sub create {
     return unless $app->SUPER::authenticate();
 
     my $id = $params->{id};
-    my $e  = MT->model('entry')->load($id);
-    unless ($e) {
+    my $m  = MT->model('tw_message')->load($id);
+    unless ($n) {
         return $app->error( 404, 'Status message ' . $id . ' not found.' );
     }
     my $fav;
     $fav = MT->model('tw_favorite')->load(
         {
-            obj_type  => 'entry',
+            obj_type  => 'message',
             obj_id    => $id,
             author_id => $app->user->id,
         }
@@ -141,7 +141,7 @@ sub create {
     unless ($fav) {
         $fav = MT->model('tw_favorite')->new;
         $fav->author_id( $app->user->id );
-        $fav->obj_type('entry');
+        $fav->obj_type('message');
         $fav->obj_id($id);
 
 # TODO - authentication layer is not properly seeding context. audit rows now showing ownership properly
@@ -149,7 +149,7 @@ sub create {
     }
 
     # TODO - this needs to accurately show favorite status
-    my $statuses = serialize_entries( [$e] );
+    my $statuses = serialize_entries( [$m] );
     $statuses->[0]->{favorited} = 'true';
     return { status => @$statuses[0] };
 }
@@ -191,18 +191,19 @@ sub destroy {
     return unless $app->SUPER::authenticate();
 
     my $id = $params->{id};
-    my $e  = MT->model('entry')->load($id);
-    unless ($e) {
+    my $m  = MT->model('tw_message')->load($id);
+    unless ($m) {
         return $app->error( 404, 'Status message ' . $id . ' not found.' );
     }
-    my $fav =
-      MT->model('tw_favorite')
-      ->load(
-        { obj_type => 'entry', obj_id => $id, author_id => $app->user->id } );
+    my $fav = MT->model('tw_favorite')->load({ 
+        obj_type => 'message', 
+        obj_id => $id, 
+        author_id => $app->user->id 
+    });
     $fav->remove;
 
     # TODO - this needs to accurately show favorite status
-    my $statuses = serialize_entries( [$e] );
+    my $statuses = serialize_entries( [$m] );
     return { status => @$statuses[0] };
 }
 

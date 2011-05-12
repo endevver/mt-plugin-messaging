@@ -6,8 +6,10 @@ use base 'Exporter';
 use MT::Util qw( format_ts );
 use MT::I18N qw( length_text substr_text );
 
-our @EXPORT_OK =
-  qw( serialize_author twitter_date truncate_tweet serialize_entries is_number load_friends load_followers latest_status mark_favorites hack_geo );
+our @EXPORT_OK = qw( 
+    serialize_author twitter_date truncate_tweet serialize_entries is_number 
+    load_friends load_followers latest_status mark_favorites hack_geo 
+);
 
 sub hack_geo {
     my ( $ref, $format ) = @_;
@@ -33,10 +35,10 @@ s/<geo>([^ ]*) ([^\>]*)<\/geo>/<geo xmlns:georss=\"http:\/\/www.georss.org\/geor
 
 sub latest_status {
     my ($user) = @_;
-    return MT->model('entry')->load(
+    return MT->model('tw_message')->load(
         {
             author_id => $user->id,
-            status    => 2
+            status    => MT->model('tw_message')->SHOW()
         },
         {
             sort_by   => 'created_on',
@@ -116,6 +118,9 @@ sub serialize_entries {
     foreach my $e (@$entries) {
         my ( $trunc, $txt ) = truncate_tweet( $e->text );
         push @ids, $e->id;
+        
+        my $author = MT->model('author')->load( $e->created_by );
+        
         my $ser = {
             created_at => twitter_date( $e->created_on ),
             id         => $e->id,
@@ -127,7 +132,7 @@ sub serialize_entries {
             in_reply_to_user_id     => '',
             favorited               => 'false',
             in_reply_to_screen_name => '',
-            user                    => serialize_author( $e->author ),
+            user                    => serialize_author( $author ),
             geo                     => undef,
         };
         if ( $e->geo_latitude && $e->geo_longitude ) {
@@ -146,7 +151,7 @@ sub mark_favorites {
     }
     my @favs = MT->model('tw_favorite')->load(
         {
-            obj_type  => 'entry',
+            obj_type  => 'tw_message',
             author_id => $user->id,
             obj_id    => \@ids
         }
