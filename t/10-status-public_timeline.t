@@ -1,23 +1,27 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 use strict;
+use warnings;
+use Data::Dumper;
+use Test::More tests => 2;
 
 use Net::Twitter;
-use Data::Dumper;
+
+my $apiurl = $ENV{TWITTERAPIURL};
+die "TWITTERAPIURL environment variable not defined" unless $apiurl;
 
 my $nt = Net::Twitter->new(
     traits   => [qw/Legacy/],
-    apiurl   => "http://localhost/cgi-bin/mt435/twitter.cgi",
+    apiurl   => $apiurl,
     username => "danwolfgang",
     password => "yttjct4p",
 );
 
-my $result;
+my $result = eval { $nt->public_timeline(); };
+ok( $result, 'Result defined');
+is( ref $result->{statuses}, 'HASH', 'Return value of statuses');
+diag "Public Timeline result: " . Dumper($result);
 
-eval {
-    my $result = $nt->public_timeline();
-    print "Public Timeline result: " . Dumper($result) . "\n";
-};
 if ( my $err = $@ ) {
     die $@ unless blessed $err && $err->isa('Net::Twitter::Error');
     warn "HTTP Response Code: ", $err->code, "\n",
