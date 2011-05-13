@@ -6,6 +6,7 @@ use warnings;
 use lib qw(addons/Messaging.plugin/lib);
 use Test::More tests => 17;
 
+use_ok( 'Test::Messaging::Base' );
 use_ok( 'Messaging::Plugin' );
 use_ok( 'Messaging::Message' );
 use_ok( 'Messaging::Follower' );
@@ -22,4 +23,4 @@ use_ok( 'Messaging::Twitter::Search' );
 use_ok( 'Messaging::Twitter::Status' );
 use_ok( 'Messaging::Twitter::User' );
 use_ok( 'Messaging::Twitter::Util' );
-use_ok( 'Test::Messaging::Base' );
+
