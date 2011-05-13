@@ -1,0 +1,67 @@
+id: Messaging
+key: Messaging
+name: Messaging
+description: Provides a simple messaging service based on the Twitter API.
+author_name: "Endevver, LLC"
+author_link: http://www.endevver.com/
+plugin_class: TwitterAPI::Plugin
+schema_version: 2
+version: 1.0.1
+
+config_settings:
+    MessagingAPIScript:
+        default: msg.cgi
+
+object_types:
+    tw_favorite: Messaging::Favorite
+    tw_follower: Messaging::Follower
+    tw_message:  Messaging::Message
+
+callbacks:
+    MT::Author::post_remove: Messaging::Twitter::Callbacks::author_post_remove
+
+applications:
+    cms:
+        menus:
+            manage:messages:
+                label: 'Messages'
+                order: 9000
+                mode: list_messages
+                view: system
+                permission: administer
+            system:messages:
+                label: 'Messages'
+                order: 1100
+                mode: list_messages
+                permission: administer
+        methods:
+            list_messages:  Messaging::Plugin::list
+            hide_message:   Messaging::Plugin::hide
+            show_message:   Messaging::Plugin::show
+    messaging_api:
+        handler: 'Messaging::Twitter'
+
+widgets:
+    messaging:
+        label: 'Messaging'
+        template: 'dashboard_widget.mtml'
+        code: Messaging::Plugin::dashboard_widget
+
+list_actions:
+    tw_message:
+        delete:
+            label: 'Delete'
+            code: Messaging::Plugin::delete
+            permission: administer
+
+tags:
+    block:
+        Messages: Messaging::Tags::messages
+    function:
+        MessageID:       Messaging::Tags::message_id
+        MessageText:     Messaging::Tags::message_text
+        MessageGeoLong:  Messaging::Tags::message_geo_long
+        MessageGeoLat:   Messaging::Tags::message_geo_lat
+        MessageAuthorID: Messaging::Tags::message_author_id
+        MessageDate:     Messaging::Tags::message_date
+
