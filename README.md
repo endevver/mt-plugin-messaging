@@ -18,9 +18,7 @@ Installation follows the [standard plugin installation](http://tinyurl.com/easy-
 This .htaccess recipe is essential to this API working.
 
     RewriteEngine On
-    RewriteCond %{HTTP:Authorization}  ^(.*)
-    RewriteRule ^/(.*)$ /var/www/cgi-bin/mt/twitter.cgi/$1 [e=HTTP_AUTHORIZATION:%1,t=application/x-httpd-cgi,l]
-    RewriteRule ^/(.*)$ http://localhost/cgi-bin/mt/twitter.cgi/$1 [L,P,QSA]
+    SetEnvIfNoCase ^Authorization$ "(.+)" HTTP_AUTHORIZATION=$1
 
 ## Perl Test Suite
 
@@ -100,6 +98,12 @@ The Dashboard Widget uses Ajax to access `statuses/public_timeline` and
 `statuses/update` so if you want to use Ajax you can find those examples in
 `addons/TwitterAPI.plugin/tmpl/dashboard_widget.mtml`. Also, the test suite
 shows a working Perl implementation with Net::Twitter.
+
+### Passwords
+
+An MT author's password is *not* used to authenticate. The Movable Type-generated API password is used instead.
+
+The API password is used instead because it provides greater security through restricted permissions: author's can post status updates with the API password, for example, but can not modify templates.
 
 # Tags
 
