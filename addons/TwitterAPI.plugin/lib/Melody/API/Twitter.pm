@@ -80,8 +80,6 @@ sub handle {
         }
         $app->mode($method);
 
-        $logger->info("Query string: ".$app->query_string);
-
         my $args = {};
         for my $arg ( split( ';', $app->query_string ) ) {
             my ( $k, $v ) = split( /=/, $arg, 2 );
