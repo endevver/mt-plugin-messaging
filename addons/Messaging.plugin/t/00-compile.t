@@ -3,7 +3,7 @@ package Test::Messaging::Compile;
 
 use strict;
 use warnings;
-use lib qw(./lib);
+use lib qw(addons/Messaging.plugin/lib);
 use Test::More tests => 17;
 
 use_ok( 'Messaging::Plugin' );

@@ -3,7 +3,7 @@ package Test::Messaging::Cleanup;
 
 use strict;
 use warnings;
-use lib qw(./lib);
+use lib qw(addons/Messaging.plugin/lib);
 use base qw( Test::Messaging::Base );
 use Test::More tests => 4;
 

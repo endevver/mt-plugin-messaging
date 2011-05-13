@@ -3,7 +3,7 @@ package Test::Messaging::Statuses;
 
 use strict;
 use warnings;
-use lib qw(./lib);
+use lib qw(addons/Messaging.plugin/lib);
 use base qw( Test::Messaging::Base );
 use Data::Dumper;
 use Scalar::Util qw( looks_like_number );
