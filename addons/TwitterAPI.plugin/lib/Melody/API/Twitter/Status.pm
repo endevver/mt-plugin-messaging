@@ -29,7 +29,9 @@ sub public_timeline {
     my $app      = shift;
     my ($params) = @_;      # this method takes no input
 
-    my $terms    = { };
+    my $terms    = { 
+        status => MT->model('tw_message')->SHOW(),
+    };
     my $args     = {
         sort_by   => 'created_on',
         direction => 'descend',
@@ -100,7 +102,9 @@ sub home_timeline {
     return unless $app->SUPER::authenticate(AUTH_REQUIRED);
     my ($params) = @_;
 
-    my $terms    = { };
+    my $terms    = { 
+        status => MT->model('tw_message')->SHOW(),
+    };
     my $args     = {
         sort_by   => 'created_on',
         direction => 'descend',
@@ -214,10 +218,9 @@ sub user_timeline {
     my $is_authed = $app->SUPER::authenticate(AUTH_OPTIONAL);
     my ($params)  = @_;
 
-use Data::Dumper;
-MT->log("User timeline params: ".Dumper($params));
-
-    my $terms    = { };
+    my $terms    = { 
+        status => MT->model('tw_message')->SHOW(),
+    };
     my $args      = {
         sort_by   => 'created_on',
         direction => 'descend',
@@ -294,7 +297,9 @@ sub friends_timeline {
     return unless $app->SUPER::authenticate();
     my ($params) = @_;
 
-    my $terms    = { };
+    my $terms    = { 
+        status => MT->model('tw_message')->SHOW(),
+    };
     my $args     = {
         sort_by   => 'created_on',
         direction => 'descend',

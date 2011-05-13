@@ -81,7 +81,10 @@ sub favorites {
         #      $iter->end, last if $n && $i >= $n;
     }
 
-    my @messages = MT->model('tw_message')->load( { id => \@ids } );
+    my @messages = MT->model('tw_message')->load({ 
+        id     => \@ids,
+        status => MT->model('tw_message')->SHOW(),
+    });
 
     my $statusus;
     $statuses = serialize_entries( \@messageses );
