@@ -2,10 +2,11 @@ id: TwitterAPI
 key: TwitterAPI
 name: Twitter API
 description: Provides support for the Twitter API.
-plugin_author: Byrne Reese
+author_name: "Endevver, LLC"
+author_link: http://www.endevver.com/
 plugin_class: TwitterAPI::Plugin
 schema_version: 2
-version: 1.0
+version: 1.0.1
 
 config_settings:
     TwitterAPIScript:
