@@ -53,3 +53,14 @@ list_actions:
             code: TwitterAPI::Plugin::delete
             permission: administer
 
+tags:
+    block:
+        Messages: TwitterAPI::Tags::messages
+    function:
+        MessageID: TwitterAPI::Tags::message_id
+        MessageText: TwitterAPI::Tags::message_text
+        MessageGeoLong: TwitterAPI::Tags::message_geo_long
+        MessageGeoLat: TwitterAPI::Tags::message_geo_lat
+        MessageAuthorID: TwitterAPI::Tags::message_author_id
+        MessageDate: TwitterAPI::Tags::message_date
+
