@@ -1,5 +1,36 @@
 # Setup & Installation
 
+> ----
+>
+> **IMPORTANT:** The Net::Twitter perl module that this plugin relies
+> on requires newer versions of certain perl modules than those bundled
+> with MT:
+>
+> * LWP::UserAgent (part of the libwww-perl distribution)
+> * HTTP::Headers (part of the HTTP-Message distribution)
+>
+> To resolve the conflict, you will need to do the following:
+>
+> 1. Install the following perl bundles if not already installed:
+>     * [libwww-perl][libwww-perl] v6.00 or higher (preferably the latest)
+>     * [HTTP-Message][HTTP-Message] (latest version)
+> 2. Move the following files and directories (indicated by a trailing
+>    slash) out of the `extlib` directory:
+>     * LWP/
+>     * LWP.pm
+>     * HTTP/Headers/
+>     * HTTP/Headers.pm
+>     * HTTP/Message.pm
+>     * HTTP/Request/
+>     * HTTP/Request.pm
+>     * HTTP/Response.pm
+>     * HTTP/Status.pm
+>
+> ----
+
+[libwww-perl]: http://search.cpan.org/dist/libwww-perl/
+[HTTP-Message]: http://search.cpan.org/~gaas/HTTP-Message-6.02/
+
 This .htaccess recipe is essential to this API working.
 
     RewriteEngine On
