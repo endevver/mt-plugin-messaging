@@ -13,10 +13,10 @@ use constant {
     AUTH_OPTIONAL => 0,
 };
 
-#use MT::Log::Log4perl qw( l4mtdump );
-#use Log::Log4perl qw( :resurrect );
-#our $logger ||= MT::Log::Log4perl->new();
-our $logger;
+use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
+use MT::Log::Log4perl qw( l4mtdump );
+use Log::Log4perl qw( :resurrect );
+our $logger ||= MT::Log::Log4perl->new();
 
 sub init {
     my $app = shift;
