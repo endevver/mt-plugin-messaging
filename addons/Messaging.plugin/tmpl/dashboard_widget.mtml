@@ -94,7 +94,7 @@
             jQuery('button#post-message').attr('disabled','disabled');
             jQuery.ajax({
                 type: 'POST',
-                url: '<mt:CGIPath><mt:Var name="config.MessagingAPIScript">/statuses/update.json',
+                url: '<mt:CGIPath><mt:Var name="config.MessagingScript">/statuses/update.json',
                 dataType: 'json',
                 data: "status=" + jQuery('input#message-text').serialize() 
                     + '&username=<mt:Var name="author_name">&password=<mt:Var name="author_password">',
@@ -123,7 +123,7 @@
     function update() {
         jQuery.ajax({
             type: 'POST',
-            url: '<mt:CGIPath><mt:Var name="config.MessagingAPIScript">/statuses/public_timeline.json', 
+            url: '<mt:CGIPath><mt:Var name="config.MessagingScript">/statuses/public_timeline.json', 
             success: parse_public_timeline
         });
     }

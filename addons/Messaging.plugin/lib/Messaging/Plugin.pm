@@ -23,11 +23,11 @@ sub api_url {
     my $env = $ENV{TWITTERAPIURL} || '';
     return $env if $env =~ m{^http};
 
-    # Otherwise, derive the API URL from the CGIPath and TwitterAPIScript
+    # Otherwise, derive the API URL from the CGIPath and MessagingScript
     # config directive values, the latter of which defaults to "twitter.cgi".
     $env = MT::Util::caturl(
         $app->config->CGIPath,
-        $app->config->TwitterAPIScript,
+        $app->config->MessagingScript,
     );
 }
 

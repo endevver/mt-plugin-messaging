@@ -9,7 +9,7 @@ schema_version: 2
 version: 1.0.1
 
 config_settings:
-    MessagingAPIScript:
+    MessagingScript:
         default: msg.cgi
 
 object_types:
