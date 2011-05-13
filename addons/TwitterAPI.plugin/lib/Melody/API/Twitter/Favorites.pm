@@ -42,7 +42,6 @@ sub favorites {
     my ($params) = @_;    # this method takes no input
     return unless $app->SUPER::authenticate();
 
-    my ($params) = @_;
     my $terms = { obj_type => 'entry', };
     my $args = {
         sort_by   => 'created_on',

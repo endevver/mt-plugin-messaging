@@ -75,7 +75,7 @@ sub show {
     my $latest = latest_status($u);
     if ($latest) {
         $uh->{status} = serialize_entries( [$latest] )->[0];
-        delete %$uh->{status}->{user};
+        delete $uh->{status}->{user};
     }
 
     return { user => $uh };

@@ -694,7 +694,6 @@ sub friends {
         }
     }
 
-    my ($params) = @_;
     my $terms    = {};
     my $args     = {
         sort_by   => 'created_on',
@@ -730,7 +729,7 @@ sub friends {
         my $latest = latest_status($u);
         if ($latest) {
             $uh->{status} = serialize_entries( [$latest] )->[0];
-            delete %$uh->{status}->{user};
+            delete $uh->{status}->{user};
         }
         push @{ $hash->{users}->{user} }, $uh;
         $i++;
@@ -794,7 +793,7 @@ sub followers {
         my $latest = latest_status($u);
         if ($latest) {
             $uh->{status} = serialize_entries( [$latest] )->[0];
-            delete %$uh->{status}->{user};
+            delete $uh->{status}->{user};
         }
         push @{ $hash->{users}->{user} }, $uh;
         $i++;
