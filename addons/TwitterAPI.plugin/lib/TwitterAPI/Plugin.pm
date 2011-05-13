@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base qw( MT::Plugin );
 
-use MT::Util qw( format_ts relative_date );
+use MT::Util qw( caturl format_ts relative_date );
 
 use Data::Dumper;
 
@@ -20,7 +20,7 @@ sub api_url {
 
     # Otherwise, derive the API URL from the CGIPath and TwitterAPIScript
     # config directive values, the latter of which defaults to "twitter.cgi".
-    return File::Spec->catfile(
+    $env = MT::Util::caturl(
         $app->config->CGIPath,
         $app->config->TwitterAPIScript,
     );
