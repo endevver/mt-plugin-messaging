@@ -209,8 +209,6 @@ sub authenticate {
     my ($mode) = @_;
     $logger->trace('Attempting to authenticate user...');
 
-    my $q = new CGI;
-
     my $auth;
     if ( $mode == AUTH_REQUIRED ) {
         $auth = $app->get_auth_info
