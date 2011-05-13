@@ -72,13 +72,15 @@ sub list {
 
 # Create a new message
 sub create {
-    my $app = MT->instance;
-    
-    use Net::Twitter;
+    my $app    = MT->instance;
+    my $user   = $app->user;
+    my $plugin = MT->component('TwitterAPI');
+
+    require Net::Twitter;
     my $nt = Net::Twitter->new(
-        apiurl   => "http://localhost/cgi-bin/mt435/twitter.cgi",
-        username => $app->user->name,
-        password => 'yttjct4p',
+        apiurl   => $plugin->api_url(),
+        username => $user->name,
+        password => $user->api_password,
     );
 
     my $result = $nt->update({'Hello world!'});
