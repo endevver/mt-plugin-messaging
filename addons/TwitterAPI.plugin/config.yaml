@@ -33,8 +33,7 @@ applications:
                 order: 1100
                 mode: list_messages
         methods:
-            list_messages: TwitterAPI::Plugin::list
-            create_message: TwitterAPI::Plugin::create
+            list_messages:  TwitterAPI::Plugin::list
     twitter_api:
         handler: 'Melody::API::Twitter'
 
@@ -42,5 +41,4 @@ widgets:
     messaging:
         label: 'Messaging'
         template: 'dashboard_widget.mtml'
-        #handler: TwitterAPI::Plugin::widget
 

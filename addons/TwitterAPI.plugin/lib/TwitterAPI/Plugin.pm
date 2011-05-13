@@ -70,24 +70,4 @@ sub list {
     });
 }
 
-# Create a new message
-sub create {
-    my $app    = MT->instance;
-    my $user   = $app->user;
-    my $plugin = MT->component('TwitterAPI');
-
-    require Net::Twitter;
-    my $nt = Net::Twitter->new(
-        apiurl   => $plugin->api_url(),
-        username => $user->name,
-        password => $user->api_password,
-    );
-
-    my $result = $nt->update({'Hello world!'});
-}
-
-sub widget {
-    my ($app, $tmpl, $widget_param) = @_;
-}
-
 1;
