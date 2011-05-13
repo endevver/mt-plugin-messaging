@@ -165,7 +165,6 @@ sub mark_favorites {
 
 sub serialize_author {
     my ($a) = @_;
-    $a ||= ();
     return {
         id                => $a->id,
         name              => $a->nickname,
@@ -193,7 +192,7 @@ sub serialize_author {
         #        notifications,
         #        following,
         #        verified,
-    };
+    } if defined $a;
 }
 
 1;
