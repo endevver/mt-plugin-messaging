@@ -31,7 +31,7 @@ is( ref $result->{statuses}, 'HASH', 'friends_timeline statuses');
 
 ### Other user's timeline
 $result = $test->client->user_timeline({
-    user_id => 'ophelia',
+    user_id => 'twitterapitest_other',
 });
 ok( $result, 'user_timeline result defined');
 is( ref $result->{statuses}, 'HASH', 'user_timeline statuses');
