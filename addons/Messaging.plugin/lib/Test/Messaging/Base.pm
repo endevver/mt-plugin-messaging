@@ -2,8 +2,8 @@ package Test::Messaging::Base;
 
 use strict;
 use warnings;
-use lib $ENV{MT_HOME} ? "$ENV{MT_HOME}/lib", "$ENV{MT_HOME}/extlib"
-                      : "./lib", "./extlib";
+use lib $ENV{MT_HOME} ? ("$ENV{MT_HOME}/lib", "$ENV{MT_HOME}/extlib")
+                      : ("./lib", "./extlib");
 use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
 
 use base qw( Class::Accessor::Fast Class::Data::Inheritable );
