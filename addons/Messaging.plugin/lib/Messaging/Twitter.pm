@@ -174,7 +174,7 @@ sub get_auth_info {
 
         # Make sure use has an API Password set
         return $app->auth_failure( 403, 'Invalid login. API Password not set.' )
-          unless $user->password;
+          unless $user->api_password;
 
 
         # Make sure user is active
@@ -183,7 +183,7 @@ sub get_auth_info {
 
         # Check to see if passwords match
         return $app->auth_failure( 403, 'Invalid login. Password mismatch.' )
-          unless $user->password eq $password;
+          unless $user->api_password eq $password;
 
     }
     else {

@@ -97,7 +97,7 @@
                 url: '<mt:CGIPath><mt:Var name="config.MessagingScript">/statuses/update.json',
                 dataType: 'json',
                 data: "status=" + jQuery('input#message-text').serialize() 
-                    + '&username=<mt:Var name="author_name">&password=<mt:Var name="author_password">',
+                    + '&username=<mt:Var name="author_name">&password=<mt:Var name="author_api_password">',
                 success: status_response,
                 error: status_response_error
             });

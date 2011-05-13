@@ -126,10 +126,10 @@ sub init_test_users {
 
     foreach my $data ( @{ $self->TestUserData } ) {
         my $user = MT->model('author')->get_by_key({
-            name      => $data->{name},
-            nickname  => $data->{nickname},
+            name     => $data->{name}, 
+            nickname => $data->{nickname},
             auth_type => 'MT',
-            password  => '',
+            password => '',
         });
         $user->save;
         MT->model('association')->link( $user => $role => $self->blog );
@@ -157,7 +157,7 @@ sub init_client {
         traits   => [qw/Legacy/],
         apiurl   => $api_url,
         username => $test_user->name,
-        password => $test_user->password,
+        password => $test_user->api_password,
     );
 }
 

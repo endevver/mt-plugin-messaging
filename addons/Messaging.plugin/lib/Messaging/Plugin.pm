@@ -145,7 +145,7 @@ sub dashboard_widget {
     # The author password needs to be part of the Ajax request to post a new
     # message.
     my $author = MT->model('author')->load( $app->user->id );
-    $widget_param->{author_password} = $author->password;
+    $widget_param->{author_api_password} = $author->api_password;
 }
 
 1;
