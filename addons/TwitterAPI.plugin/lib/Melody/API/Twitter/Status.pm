@@ -584,7 +584,7 @@ sub destroy {
     unless ($m) {
         return $app->error( 404, 'Status message ' . $id . ' not found.' );
     }
-    if ( $m->author_id == $app->user->id ) {
+    if ( $m->created_by == $app->user->id ) {
         $m->remove;
     }
     return { status => serialize_entries( [$m] ) };
