@@ -6,11 +6,15 @@ use warnings;
 use lib qw(./lib);
 use base qw( Test::Melody::API::Twitter::Base );
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
 # Instantiate and initialize test object
 my $test = __PACKAGE__->new();
 $test->init();
+
+# Check for test blog
+my $blog = $test->blog();
+isa_ok( $blog, 'MT::Blog', "Test blog");
 
 # Check for test users
 my $users = $test->users() || [];

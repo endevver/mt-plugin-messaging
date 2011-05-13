@@ -8,8 +8,11 @@ use base qw( Class::Accessor::Fast Class::Data::Inheritable );
 
 use Scalar::Util qw( blessed );
 use File::Spec;
+use MT::Util qw( caturl );
 
-__PACKAGE__->mk_accessors(qw( users client session_id session_username ));
+__PACKAGE__->mk_accessors(qw(   users  blog  client
+                                session_id  session_username    ));
+
 __PACKAGE__->mk_classdata( 
     TestUserData => [
                         {
@@ -56,6 +59,7 @@ BEGIN {
 sub init {
     my $self = shift;
     $self->init_app( $ENV{MT_CONFIG} );
+    $self->blog(   $self->init_test_blog()  );
     $self->users(  $self->init_test_users() );
     $self->client( $self->init_client()     );
     $self->override_core_methods();
@@ -83,9 +87,40 @@ sub init_app {
     ) or die( MT->errstr );
 } ## end sub init_app
 
+sub init_test_blog {
+    my $self    = shift;
+    my $app     = MT->instance;
+    my $postfix = 'twitterapi/';
+
+    require MT::Util;
+
+    my $blog = MT->model('blog')->get_by_key({
+        name => 'Twitter API plugin test blog',
+    });
+
+    $app->config->DefaultSiteRoot
+        or warn   "DefaultSiteRoot undefined in mt-config.cgi. "
+                . "Test blog site path may be incorrect/invalid.";
+    $blog->site_path(
+        File::Spec->catdir( $app->config->DefaultSiteRoot, $postfix )
+    );
+
+    $app->config->DefaultSiteURL
+        or warn   "DefaultSiteURL undefined in mt-config.cgi. "
+                . "Test blog site URL may be incorrect/invalid.";
+    $blog->site_url(
+        caturl( $app->config->DefaultSiteURL, $postfix )
+    );
+
+    $blog->save();
+    $blog;
+}
+
 sub init_test_users {
     my $self = shift;
     my @users;
+    my $role = MT->model('role')->load({ name => 'Author' });
+
     foreach my $data ( @{ $self->TestUserData } ) {
         my $user = MT->model('author')->get_by_key({
             name     => $data->{name}, 
@@ -93,6 +128,7 @@ sub init_test_users {
             password => '',
         });
         $user->save;
+        MT->model('association')->link( $user => $role => $self->blog );
         push( @users, $user );
     }
     \@users;
