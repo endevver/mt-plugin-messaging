@@ -5,6 +5,8 @@ use Messaging::Twitter::Util
   qw( serialize_author twitter_date truncate_tweet serialize_entries is_number 
       load_friends load_followers latest_status mark_favorites );
 
+use MT::Util qw( decode_url );
+
 ###########################################################################
 
 =head2 statuses/public_timeline
@@ -551,8 +553,8 @@ sub update {
     }
 
 # TODO perform dupe check: retrieve last update, compare text, return 403 if same
-    my $truncated;
-    ( $truncated, $msg ) = truncate_tweet($msg);
+
+    $msg = decode_url($msg);
 
     MT->log("Saving tweet: $msg");
     my $m = MT->model('tw_message')->new;
