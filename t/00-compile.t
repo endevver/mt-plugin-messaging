@@ -6,7 +6,7 @@ use warnings;
 use lib qw(./lib);
 use Test::More tests => 17;
 
-use_ok( 'Melody::Plugin' );
+use_ok( 'TwitterAPI::Plugin' );
 use_ok( 'Melody::Message' );
 use_ok( 'Melody::Follower' );
 use_ok( 'Melody::Favorite' );

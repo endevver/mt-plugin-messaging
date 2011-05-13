@@ -1,4 +1,4 @@
-package Melody::Plugin;
+package TwitterAPI::Plugin;
 
 use strict;
 use warnings;
