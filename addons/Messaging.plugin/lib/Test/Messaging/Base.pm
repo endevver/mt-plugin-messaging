@@ -5,6 +5,7 @@ use warnings;
 use Data::Dumper;
 
 use base qw( Class::Accessor::Fast Class::Data::Inheritable );
+use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
 
 use Scalar::Util qw( blessed );
 use File::Spec;

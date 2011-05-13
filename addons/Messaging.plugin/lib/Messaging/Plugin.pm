@@ -3,6 +3,7 @@ package Messaging::Plugin;
 use strict;
 use warnings;
 use base qw( MT::Plugin );
+use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
 
 use MT::Util qw( caturl format_ts relative_date );
 
