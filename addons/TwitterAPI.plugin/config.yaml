@@ -3,6 +3,7 @@ key: TwitterAPI
 name: Twitter API
 description: Provides support for the Twitter API.
 plugin_author: Byrne Reese
+plugin_class: TwitterAPI::Plugin
 schema_version: 2
 version: 1.0
 

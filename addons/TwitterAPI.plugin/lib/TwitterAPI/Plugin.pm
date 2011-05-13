@@ -2,6 +2,7 @@ package TwitterAPI::Plugin;
 
 use strict;
 use warnings;
+use base qw( MT::Plugin );
 
 use MT::Util qw( format_ts relative_date );
 
