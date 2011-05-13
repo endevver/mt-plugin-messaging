@@ -117,7 +117,7 @@ sub handle {
             $logger->info('There was an error processing the request.');
             return;
         }
-        $logger->info( 'Returning: ' . Dumper($out) );
+        $logger->debug( 'Returning: ' . Dumper($out) );
         return unless defined $out;
         my $out_enc;
         if ( lc($format) eq 'json' ) {
@@ -167,8 +167,8 @@ sub get_auth_info {
         my $creds = MIME::Base64::decode_base64($creds_enc);
         my ( $username, $password ) = split( ':', $creds );
 
-        $logger->info( 'Username: ' . $username );
-        $logger->info( 'Password (encoded): ' . $password );
+        $logger->debug( 'Credentials: ',
+            l4mtdump({ username => $username, api_pass => $password}));
 
         # Lookup user record
         my $user = MT::Author->load( { name => $username, type => 1 } )
