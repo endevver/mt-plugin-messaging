@@ -209,12 +209,7 @@ sub authenticate {
     my ($mode) = @_;
     $logger->trace('Attempting to authenticate user...');
 
-    # my $q = new CGI;
-    # $logger->info( "Headers: ".Dumper( $q->http() ) );
-    foreach my $k ( grep { m/^HTTP_/ } keys %ENV ) {
-       $logger->debug( sprintf( 'HTTP HEADER: %s = %s', $k, $ENV{$k} ));
-    }
-    #$logger->info( "HTTP Authentication: " . $ENV{'HTTP_AUTHENTICATION'} );
+    my $q = new CGI;
 
     my $auth;
     if ( $mode == AUTH_REQUIRED ) {
