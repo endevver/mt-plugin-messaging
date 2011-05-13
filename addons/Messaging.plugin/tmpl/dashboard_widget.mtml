@@ -61,7 +61,7 @@
         </div>
     </div>
 
-    <script type="text/javascript" src="<mt:StaticWebPath>jquery/jquery.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.0/jquery.min.js"></script>
     <script type="text/javascript">
     jQuery(document).ready(function() {
         // Run when the page loads!
@@ -92,12 +92,12 @@
             jQuery('#message-post-spinner').show();
             jQuery('#message-text-counter').parent().hide();
             jQuery('button#post-message').attr('disabled','disabled');
+            
             jQuery.ajax({
                 type: 'POST',
                 url: '<mt:CGIPath><mt:Var name="config.MessagingScript">/statuses/update.json',
                 dataType: 'json',
-                data: "status=" + jQuery('input#message-text').serialize() 
-                    + '&username=<mt:Var name="author_name">&password=<mt:Var name="author_api_password">',
+                data: "status=" + jQuery('input#message-text').val(),
                 success: status_response,
                 error: status_response_error
             });
@@ -108,6 +108,7 @@
         // This should report the error thrown... but I don't know why it's 
         // not returned here.
         alert('Post failed!');
+        jQuery('button#post-message').attr('disabled');
     }
 
     function status_response(data,textStatusjqXHR) {

@@ -145,7 +145,11 @@ sub dashboard_widget {
     # The author password needs to be part of the Ajax request to post a new
     # message.
     my $author = MT->model('author')->load( $app->user->id );
-    $widget_param->{author_api_password} = $author->api_password;
+    require MIME::Base64;
+    my $b64 = MIME::Base64::encode_base64(
+        $author->name . ':' . $author->api_password
+    );
+    $widget_param->{base64_author_credentials} = chomp($b64);
 }
 
 1;
