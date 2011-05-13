@@ -20,8 +20,6 @@ our $logger;
 
 sub init {
     my $app = shift;
-    $app->{no_read_body} = 1
-      if $app->request_method eq 'POST' || $app->request_method eq 'PUT';
     $app->SUPER::init(@_) or return $app->error("Initialization failed");
 
     # Now that MT has been initialized, Log4MT can be initialized.
