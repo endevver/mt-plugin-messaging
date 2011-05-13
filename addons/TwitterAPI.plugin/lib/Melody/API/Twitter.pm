@@ -157,10 +157,8 @@ sub get_auth_info {
     my $app = shift;
     my %param;
 
-    #my $auth_header = $app->get_header('Authorization')
-    #  or return $app->auth_failure( 501, 'Authorization header missing.' );
-
-    my $auth_header = "basic ZGFud29sZmdhbmc6eXR0amN0NHA=";
+    my $auth_header = $app->get_header('Authorization')
+     or return $app->auth_failure( 501, 'Authorization header missing.' );
 
     $logger->info( 'Authorization header present: ' . $auth_header );
     my ( $type, $creds_enc ) = split( " ", $auth_header );
