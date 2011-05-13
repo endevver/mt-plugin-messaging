@@ -8,8 +8,24 @@
         }
         TC.attachLoadEvent(init);
       --></script>
+     <style type="text/css">
+     .status-show { background: url(<mt:StaticWebPath>images/status_icons/success.gif) center 6px no-repeat;}
+     .status-hide { background: url(<mt:StaticWebPath>images/status_icons/draft.gif) center 6px no-repeat;}
+     </style>
 </mt:SetVarBlock>
 <mt:SetVarBlock name="system_msg">
+    <mt:if name="message_shown">
+        <mtapp:statusmsg
+            id="shown"
+            class="success">The selected message(s) have been made visible.
+        </mtapp:statusmsg>
+    </mt:if>
+    <mt:if name="message_hidden">
+        <mtapp:statusmsg
+            id="hidden"
+            class="success">The selected message(s) have been hidden.
+        </mtapp:statusmsg>
+    </mt:if>
     <mt:if name="message_deleted">
         <mtapp:statusmsg
             id="deleted"
@@ -23,9 +39,15 @@
     <a href="javascript:void(0)"
          onclick="doForMarkedInThisWindow(
              getByID('tw_message-listing-form'),
-             'message', 'messages', 'id', 'delete_message'); 
+             'message', 'messages', 'id', 'hide_message'); 
              return false;"
-         title="Delete the selected message(s)">Delete</a>
+         title="Hide the selected message(s)">Hide</a>
+     <a href="javascript:void(0)"
+          onclick="doForMarkedInThisWindow(
+              getByID('tw_message-listing-form'),
+              'message', 'messages', 'id', 'show_message'); 
+              return false;"
+          title="Show the selected message(s)">Show</a>
 </mt:SetVarBlock>
 <mt:SetVarBlock name="html_body_footer">
     <mt:Include name="include/display_options.tmpl">
@@ -38,7 +60,7 @@
         <div class="filter">
             <div id="filter-title" class="filter-title">
         <mt:unless name="filter">
-                <strong>All Topics</strong>
+                <strong>All Messages</strong>
         <mt:else>
             <mt:if name="filter_key">
                 <strong><__trans phrase="Showing only: [_1]" params="<mt:var name="filter_label">"></strong>
@@ -59,6 +81,9 @@
                 <th class="cb">
                     <input type="checkbox" id="select-all-checkbox" name="id-head" value="all" class="select" />
                 </th>
+                <th class="status si">
+                    <img src="<$mt:var name="static_uri"$>images/status_icons/invert-flag.gif" alt="<__trans phrase="Status">" title="<__trans phrase="Status">" width="9" height="9" />
+                </th>
                 <th class="title">Message Text</th>
                 <th class="author">Author</th>
                 <th class="date">Created</th>
@@ -70,11 +95,14 @@
                 <td class="cb">
                     <input type="checkbox" name="id" value="<mt:Var name="id">" class="select" />
                 </td>
+                <td class="status si<mt:if name="status" eq="1"> status-hide<mt:Else name="status" eq="2"> status-show</mt:if>">
+                </td>
                 <td colspan="3" class="title">
                     <mt:Var name="text">
                 </td>
             </tr>
             <tr class="<mt:If name="__odd__">odd<mt:Else>even</mt:If>">
+                <td></td>
                 <td></td>
                 <td></td>
                 <td class="author">

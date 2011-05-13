@@ -28,9 +28,13 @@ sub api_url {
 
 # A simple listing page.
 sub list {
-    my $app = shift;
-    my %param = @_;
+    my $app    = shift;
+    my $q      = $app->query;
+    my %param  = @_;
     my $plugin = MT->component('twitterapi');
+
+    return $app->show_error("Permission denied.")
+        unless $app->user->is_superuser();
 
     my $code = sub {
         my ($obj, $row) = @_;
@@ -57,7 +61,11 @@ sub list {
         direction => 'descend',
     );
 
-    my %params = ();
+    my %params = (
+        message_shown   => $q->param('message_shown') || '',
+        message_hidden  => $q->param('message_hidden') || '',
+        message_deleted => $q->param('message_deleted') || '',
+    );
 
     $app->listing({
         type     => 'tw_message', # the ID of the object in the registry
@@ -68,6 +76,62 @@ sub list {
         template => $plugin->load_tmpl('listing.mtml'),
         params   => \%params,
     });
+}
+
+sub hide {
+    my ($app) = @_;
+    $app->validate_magic or return;
+
+    return $app->show_error("Permission denied.")
+        unless $app->user->is_superuser();
+
+    my @message_ids = $app->param('id');
+    foreach my $message_id (@message_ids) {
+        my $message = MT->model('tw_message')->load($message_id)
+            or next;
+        $message->status( MT->model('tw_message')->HIDE() );
+        $message->save or die $message->errstr;
+    }
+
+    $app->add_return_arg( message_hidden => 1 );
+    $app->call_return;
+}
+
+sub show {
+    my ($app) = @_;
+    $app->validate_magic or return;
+
+    return $app->show_error("Permission denied.")
+        unless $app->user->is_superuser();
+
+    my @message_ids = $app->param('id');
+    foreach my $message_id (@message_ids) {
+        my $message = MT->model('tw_message')->load($message_id)
+            or next;
+        $message->status( MT->model('tw_message')->SHOW() );
+        $message->save or die $message->errstr;
+    }
+
+    $app->add_return_arg( message_shown => 1 );
+    $app->call_return;
+}
+
+sub delete {
+    my ($app) = @_;
+    $app->validate_magic or return;
+
+    return $app->show_error("Permission denied.")
+        unless $app->user->is_superuser();
+
+    my @message_ids = $app->param('id');
+    foreach my $message_id (@message_ids) {
+        my $message = MT->model('tw_message')->load($message_id)
+            or next;
+        $message->remove;
+    }
+
+    $app->add_return_arg( message_deleted => 1 );
+    $app->call_return;
 }
 
 1;

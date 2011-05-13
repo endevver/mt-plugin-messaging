@@ -28,12 +28,16 @@ applications:
                 order: 9000
                 mode: list_messages
                 view: system
+                permission: administer
             system:messages:
                 label: 'Messages'
                 order: 1100
                 mode: list_messages
+                permission: administer
         methods:
             list_messages:  TwitterAPI::Plugin::list
+            hide_message:   TwitterAPI::Plugin::hide
+            show_message:   TwitterAPI::Plugin::show
     twitter_api:
         handler: 'Melody::API::Twitter'
 
@@ -41,4 +45,11 @@ widgets:
     messaging:
         label: 'Messaging'
         template: 'dashboard_widget.mtml'
+
+list_actions:
+    tw_message:
+        delete:
+            label: 'Delete'
+            code: TwitterAPI::Plugin::delete
+            permission: administer
 
