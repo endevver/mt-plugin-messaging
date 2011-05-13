@@ -123,9 +123,10 @@ sub init_test_users {
 
     foreach my $data ( @{ $self->TestUserData } ) {
         my $user = MT->model('author')->get_by_key({
-            name     => $data->{name}, 
-            nickname => $data->{nickname},
-            password => '',
+            name      => $data->{name},
+            nickname  => $data->{nickname},
+            auth_type => 'MT',
+            password  => '',
         });
         $user->save;
         MT->model('association')->link( $user => $role => $self->blog );
