@@ -8,6 +8,24 @@ use MT::Util qw( format_ts relative_date );
 
 use Data::Dumper;
 
+sub api_url {
+    my $plugin = shift;
+    my $app    = MT->instance;
+
+    # The API URL can be canonically set through the TWITTERAPIURL
+    # environment variable which allows for the convenience of unit testing
+    # as well as administrators who prefer to set it from the Apache config
+    my $env = $ENV{TWITTERAPIURL} || '';
+    return $env if $env =~ m{^http};
+
+    # Otherwise, derive the API URL from the CGIPath and TwitterAPIScript
+    # config directive values, the latter of which defaults to "twitter.cgi".
+    return File::Spec->catfile(
+        $app->config->CGIPath,
+        $app->config->TwitterAPIScript,
+    );
+}
+
 # A simple listing page.
 sub list {
     my $app = shift;

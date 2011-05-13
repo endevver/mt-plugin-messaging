@@ -136,14 +136,11 @@ sub init_test_users {
 
 sub init_client {
     my $self = shift;
+    my $plugin = MT->component('TwitterAPI');
 
     # Get the API URL which can be overridden
     # with the TWITTERAPIURL environment variable
-    my ($apiurl) = $ENV{TWITTERAPIURL};
-    $apiurl    ||= File::Spec->catfile(
-                        MT->instance->config->CGIPath,
-                        'twitter.cgi'
-                   );
+    my $api_url = $plugin->api_url();
 
     # Load the primary test user's author record
     my ($test_user)
@@ -154,7 +151,7 @@ sub init_client {
     require Net::Twitter;
     return Net::Twitter->new(
         traits   => [qw/Legacy/],
-        apiurl   => $apiurl,
+        apiurl   => $api_url,
         username => $test_user->name,
         password => $test_user->api_password,
     );
