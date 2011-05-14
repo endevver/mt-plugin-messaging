@@ -17,10 +17,10 @@ sub api_url {
     my $plugin = shift;
     my $app    = MT->instance;
 
-    # The API URL can be canonically set through the TWITTERAPIURL
+    # The API URL can be canonically set through the MESSAGINGAPIURL
     # environment variable which allows for the convenience of unit testing
     # as well as administrators who prefer to set it from the Apache config
-    my $env = $ENV{TWITTERAPIURL} || '';
+    my $env = $ENV{MESSAGINGAPIURL} || '';
     return $env if $env =~ m{^http};
 
     # Otherwise, derive the API URL from the CGIPath and MessagingScript

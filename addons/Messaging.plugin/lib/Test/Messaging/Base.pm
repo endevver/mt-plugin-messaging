@@ -142,8 +142,7 @@ sub init_client {
     my $self = shift;
     my $plugin = MT->component('Messaging');
 
-    # Get the API URL which can be overridden
-    # with the TWITTERAPIURL environment variable
+    # Get the API URL
     my $api_url = $plugin->api_url();
 
     # Load the primary test user's author record
