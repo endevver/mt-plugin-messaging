@@ -20,6 +20,9 @@ __PACKAGE__->install_properties({
         geo_latitude  => 1,
         geo_longitude => 1,
     },
+    default => {
+        status => 2,
+    },
     datasource  => 'tw_message',
     primary_key => 'id',
 });

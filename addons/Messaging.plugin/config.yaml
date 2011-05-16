@@ -5,7 +5,7 @@ description: Provides a simple messaging service based on the Twitter API.
 author_name: "Endevver, LLC"
 author_link: http://www.endevver.com/
 plugin_class: Messaging::Plugin
-schema_version: 2
+schema_version: 3
 version: 1.0.2
 
 config_settings:
