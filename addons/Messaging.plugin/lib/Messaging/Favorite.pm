@@ -13,7 +13,7 @@ __PACKAGE__->install_properties(
         },
         indexes => {
             author_id => 1,
-            obj_id_and_type =>
+            obj_id_type =>
               { columns => [ 'author_id', 'obj_id', 'obj_type' ], },
         },
         defaults    => {},
