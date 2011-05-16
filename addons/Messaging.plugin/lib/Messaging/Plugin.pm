@@ -149,7 +149,11 @@ sub dashboard_widget {
     my $b64 = MIME::Base64::encode_base64(
         $author->name . ':' . $author->api_password
     );
-    $widget_param->{base64_author_credentials} = chomp($b64);
+
+    # Author->api_password seems to add a trailing new line?
+    chomp $b64;
+
+    $widget_param->{base64_author_credentials} = $b64;
 }
 
 1;

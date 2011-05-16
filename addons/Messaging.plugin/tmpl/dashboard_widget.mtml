@@ -16,8 +16,6 @@
         li.message.odd { background-color: #fff; }
         li.message.even { background-color: #f3f6f9; }
 
-        .message .text { 
-        }
         .message .author {
             width: 40%;
             display: inline-block;
@@ -38,6 +36,7 @@
         }
         span#message-text-counter { font-weight: bold; }
         div#message-post-spinner { display: none; }
+        #post-message.disabled-button { background: #ccc; }
     </style>
 
     <h4>Public Timeline <a href="javascript:void(0);" id="update-public-timeline">(Update)</a></h4>
@@ -88,16 +87,19 @@
                 alert('Enter a message before posting.');
                 return false;
             }
-            
+
+            jQuery('button#post-message').addClass('disabled-button');
             jQuery('#message-post-spinner').show();
             jQuery('#message-text-counter').parent().hide();
             jQuery('button#post-message').attr('disabled','disabled');
             
+            var msg = jQuery('input#message-text').val();
             jQuery.ajax({
                 type: 'POST',
                 url: '<mt:CGIPath><mt:Var name="config.MessagingScript">/statuses/update.json',
                 dataType: 'json',
-                data: "status=" + jQuery('input#message-text').val(),
+                data: "status=" + msg,
+                headers: { 'Authorization': 'basic <mt:Var name="base64_author_credentials">' },
                 success: status_response,
                 error: status_response_error
             });
@@ -105,20 +107,21 @@
     });
     
     function status_response_error(jqXHR,textStatus,error) {
-        // This should report the error thrown... but I don't know why it's 
-        // not returned here.
-        alert('Post failed!');
-        jQuery('button#post-message').attr('disabled');
+        alert('Post failed! ' + error);
+        jQuery('#message-post-spinner').hide();
+        jQuery('#message-text-counter').parent().show();
+        jQuery('button#post-message').removeClass('disabled-button');
+        jQuery('button#post-message').removeAttr('disabled');
     }
 
     function status_response(data,textStatusjqXHR) {
-        alert(data);
         update();
         jQuery('input#message-text').val('');
         jQuery('#message-post-spinner').hide();
-        jQuery('#message-text-counter').val('140');
+        jQuery('#message-text-counter').html('140');
         jQuery('#message-text-counter').parent().show();
-        jQuery('button#post-message').attr('disabled');
+        jQuery('button#post-message').removeClass('disabled-button');
+        jQuery('button#post-message').removeAttr('disabled');
     }
 
     function update() {
@@ -130,7 +133,12 @@
     }
     function parse_public_timeline(data,textStatus,jqXHR) {
         // Convert the returned data into a JSON object
-        var json = eval('(' + data + ')');
+        //var json = eval('(' + data + ')');
+        var json = eval( data );
+
+        // Clear existing messages. This could be smarter and include only new 
+        //messages, like twitter, but this just keeps it simple.
+        jQuery('ul#messaging-public-timeline').html('');
 
         for (var i=0; i<json.statuses.status.length; i++) {
             var status = json.statuses.status[i];

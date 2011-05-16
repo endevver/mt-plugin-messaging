@@ -46,6 +46,7 @@ widgets:
         label: 'Messaging'
         template: 'dashboard_widget.mtml'
         code: Messaging::Plugin::dashboard_widget
+        singular: 1
 
 list_actions:
     tw_message:
