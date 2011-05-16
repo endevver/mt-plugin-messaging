@@ -45,6 +45,12 @@ plugin **does not** do:
 
 ## INSTALLATION ##
 
+### Prerequisites ###
+
+* [Melody Compatibility Layer][] (not required for Melody)
+
+### Download ###
+
 The latest version of the plugin can be downloaded from the its
 [Github repo][]. [Packaged downloads][] are also available if you prefer.
 
@@ -80,18 +86,20 @@ in either:
     (that you will likely have to create) in the same directory as the script
     (which, again, is probably `MT_HOME`).
 
-[standard plugin installation]: http://tinyurl.com/easy-plugin-install
-[Directory block]: http://httpd.apache.org/docs/2.2/mod/core.html#directory
-[.htaccess]: http://httpd.apache.org/docs/current/howto/htaccess.html
-[AllowOverride]: http://httpd.apache.org/docs/2.2/mod/core.html#allowoverride
+[Melody Compatibility Layer]:
+   https://github.com/endevver/mt-plugin-melody-compat
 [Github repo]:
    https://github.com/endevver/mt-plugin-messaging
 [Packaged downloads]:
    https://github.com/endevver/mt-plugin-messaging/downloads
+[standard plugin installation]: http://tinyurl.com/easy-plugin-install
 [SetEnvIfNoCase]:
    http://httpd.apache.org/docs/current/mod/mod_setenvif.html#setenvifnocase
+[Directory block]: http://httpd.apache.org/docs/2.2/mod/core.html#directory
 [VirtualHost block]:
   http://httpd.apache.org/docs/2.2/mod/core.html#virtualhost
+[AllowOverride]: http://httpd.apache.org/docs/2.2/mod/core.html#allowoverride
+[.htaccess]: http://httpd.apache.org/docs/current/howto/htaccess.html
 
 <!--
 -----------------------------------------------------------------------------
