@@ -49,10 +49,10 @@ our $SUBAPPS = {
 
 sub handle {
     my $app = shift;
-    $logger->info('Entering "handle"...');
+    ###l4p $logger->info('Entering "handle"...');
     my $out = eval {
         ( my $pi = $app->path_info ) =~ s!^/!!;
-        $logger->info( 'Path info: ' . $pi );
+        ###l4p $logger->info( 'Path info: ' . $pi );
         $app->{param} = {};
 
         my ( $subapp, $method, $id, $format );
@@ -60,22 +60,19 @@ sub handle {
         if ( ( $subapp, $method, $id, $format ) =
             ( $pi =~ /^([^\/]*)\/([^\/]*)\/([^\.]*)\.(.*)$/ ) )
         {
-            $logger->info(
-                "Sub app: $subapp, method: $method, id: $id, format: $format");
+            ###l4p $logger->info("Sub app: $subapp, method: $method, id: $id, format: $format");
         }
         elsif ( ( $subapp, $method, $format ) =
             ( $pi =~ /^([^\/]*)\/([^\.]*)\.(.*)$/ ) )
         {
-            $logger->info(
-                "Sub app: $subapp, method: $method, format: $format");
+            ###l4p $logger->info("Sub app: $subapp, method: $method, format: $format");
         }
         elsif ( ( $subapp, $format ) = ( $pi =~ /^([^\.]*)\.(.*)$/ ) ) {
             $method = $subapp;
-            $logger->info(
-                "Sub app: $subapp, method: $method, format: $format");
+            ###l4p $logger->info("Sub app: $subapp, method: $method, format: $format");
         }
         else {
-            $logger->info("Unrecognized query format.");
+            ###l4p $logger->info("Unrecognized query format.");
 
             # TODO - bail
         }
@@ -104,17 +101,17 @@ sub handle {
           # Authentication should be defered to the designated handler since not
           # all methods require auth.
             use Data::Dumper;
-            $logger->info( "Calling $method with args: " . Dumper($args) );
+            ###l4p $logger->info( "Calling $method with args: ", l4mtdump($args) );
             $out = $app->$method($args);
         }
         else {
-            $logger->info("Drat, app can't process $method");
+            ###l4p $logger->info("Drat, app can't process $method");
         }
         if ( $app->{_errstr} ) {
-            $logger->info('There was an error processing the request.');
+            ###l4p $logger->info('There was an error processing the request.');
             return;
         }
-        $logger->debug( 'Returning: ' . Dumper($out) );
+        ###l4p $logger->debug( 'Returning: '. l4mtdump($out) );
         return unless defined $out;
         my $out_enc;
         if ( lc($format) eq 'json' ) {
@@ -157,15 +154,14 @@ sub get_auth_info {
     my $auth_header = $app->get_header('Authorization')
       or return $app->auth_failure( 501, 'Authorization header missing.' );
 
-    $logger->info( 'Authorization header present: ' . $auth_header );
+    ###l4p $logger->info( 'Authorization header present: ' . $auth_header );
     my ( $type, $creds_enc ) = split( " ", $auth_header );
     if ( lc($type) eq 'basic' ) {
         require MIME::Base64;
         my $creds = MIME::Base64::decode_base64($creds_enc);
         my ( $username, $password ) = split( ':', $creds );
 
-        $logger->debug( 'Credentials: ',
-            l4mtdump({ username => $username, pass => $password}));
+        ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, pass => $password}));
 
         # Lookup user record
         my $user = MT::Author->load( { name => $username, type => 1 } )
@@ -202,7 +198,7 @@ sub get_auth_info {
 sub authenticate {
     my $app = shift;
     my ($mode) = @_;
-    $logger->trace('Attempting to authenticate user...');
+    ###l4p $logger->trace('Attempting to authenticate user...');
 
     my $auth;
     if ( $mode == AUTH_REQUIRED ) {
@@ -214,13 +210,13 @@ sub authenticate {
           or return 0;
     }
 
-    $logger->info('Authentication successful.');
+    ###l4p $logger->info('Authentication successful.');
     return 1;
 }
 
 sub auth_failure {
     my $app = shift;
-    $logger->info('Auth failure; sending WWW-Authenticate header...');
+    ###l4p $logger->info('Auth failure; sending WWW-Authenticate header...');
     $app->set_header( 'WWW-Authenticate', 'Basic realm="Messaging"' );
     return $app->error( @_, 1 );
 }
@@ -244,13 +240,13 @@ sub error {
     my ( $code, $msg, $dont_send_body ) = @_;
 
     if ( $code && $msg ) {
-        $logger->info("Processing error $code with message: $msg");
+        ###l4p $logger->info("Processing error $code with message: $msg");
         $app->response_code($code);
         $app->response_message($msg);
         $app->{_errstr} = $msg;
     }
     elsif ($code) {
-        $logger->info("Processing error $code");
+        ###l4p $logger->info("Processing error $code");
         return $app->SUPER::error($code);
     }
     return undef if $dont_send_body;
