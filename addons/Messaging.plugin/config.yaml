@@ -6,7 +6,7 @@ author_name: "Endevver, LLC"
 author_link: http://www.endevver.com/
 plugin_class: Messaging::Plugin
 schema_version: 3
-version: 1.0.3
+version: 1.0.4
 
 config_settings:
     MessagingScript:
