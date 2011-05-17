@@ -7,6 +7,11 @@ use Messaging::Twitter::Util
 
 use MT::Util qw( decode_url );
 
+our $logger;
+use Log::Log4perl qw( :resurrect );
+###l4p use MT::Log::Log4perl qw( l4mtdump );
+###l4p $logger ||= MT::Log::Log4perl->new();
+
 ###########################################################################
 
 =head2 statuses/public_timeline
@@ -515,8 +520,8 @@ sub update {
 
     # For some reason @_ is empty, and therefore doesn't contain the supplied status message?
     #$params->{status} = 'This is a new message!';
-    use Data::Dumper;
-    MT->log('Starting a status update with params: '.Dumper($params) );
+
+    ###l4p $logger->debug('Starting a status update with params: ', l4mtdump($params));
 
     my ( $msg, $in_reply_to, $lat, $long );
     if ( $app->request_method ne 'POST' ) {
@@ -556,7 +561,7 @@ sub update {
 
     $msg = decode_url($msg);
 
-    MT->log("Saving tweet: $msg");
+    ###l4p $logger->debug("Saving tweet: $msg");
     my $m = MT->model('tw_message')->new;
     $m->text($msg);
     $m->created_by( $app->user->id );
@@ -568,7 +573,7 @@ sub update {
     }
 
     $m->save or die $m->errstr;
-    MT->log("Tweet saved with id: " . $m->id);
+    ###l4p $logger->debug('Tweet saved with id: '. $m->id);
     my $statuses = serialize_entries( [$m] );
     return { status => @$statuses[0] };
 }

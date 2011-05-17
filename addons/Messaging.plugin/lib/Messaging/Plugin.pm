@@ -3,16 +3,14 @@ package Messaging::Plugin;
 use strict;
 use warnings;
 use base qw( MT::Plugin );
-
-our $logger;
-use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
-use Log::Log4perl qw( :resurrect );
-use MT::Log::Log4perl qw( l4mtdump );
-###l4p $logger ||= MT::Log::Log4perl->new();
+use Data::Dumper;
 
 use MT::Util qw( caturl format_ts relative_date );
-
-use Data::Dumper;
+use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
+our $logger;
+use Log::Log4perl qw( :resurrect );
+###l4p use MT::Log::Log4perl qw( l4mtdump );
+###l4p $logger ||= MT::Log::Log4perl->new();
 
 sub api_url {
     my $plugin = shift;
