@@ -13,18 +13,19 @@ use constant {
     AUTH_OPTIONAL => 0,
 };
 
+our $logger;
 use lib qw( addons/Log4MT.plugin/lib addons/Log4MT.plugin/extlib );
-use MT::Log::Log4perl qw( l4mtdump );
 use Log::Log4perl qw( :resurrect );
-our $logger ||= MT::Log::Log4perl->new();
 
 sub init {
     my $app = shift;
     $app->SUPER::init(@_) or return $app->error("Initialization failed");
 
     # Now that MT has been initialized, Log4MT can be initialized.
-    $logger = MT::Log->get_logger();
-    $logger->info('Initializing...');
+    ###l4p require MT::Log::Log4perl;
+    ###l4p import MT::Log::Log4perl qw( l4mtdump );
+    ###l4p $logger = MT::Log->get_logger();
+    ###l4p $logger->info('Initializing...');
 
     $app->request_content
       if $app->request_method eq 'POST' || $app->request_method eq 'PUT';
