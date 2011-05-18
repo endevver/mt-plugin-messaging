@@ -13,7 +13,7 @@ sub messages {
     # Only if an ID is supplied in arguments does it get assigned. Otherwise, 
     # load tries (and fails) to find a result.
     if ($args->{'id'}) {
-        $load_terms->{topic_id} = $args->{'id'};
+        $load_terms->{id} = $args->{'id'};
     }
 
     my $load_args = {};
@@ -43,7 +43,7 @@ sub messages {
         $ctx->stash('MessageDate',     $message->created_on);
         
         # Necessary for the date handler in MT::Template::Context to do it's thing.
-        local $ctx->{current_timestamp} = $hot_topic->created_on;
+        local $ctx->{current_timestamp} = $message->created_on;
     
         my $out = $builder->build($ctx, $tokens);
         if (!defined $out) {
@@ -99,8 +99,8 @@ sub message_author_id {
 
 sub message_date {
     my ($ctx, $args) = @_;
-    my $a = $ctx->stash('MessageID');
-    return $ctx->error('The MessageID tag must be used within the Messages block tag.')
+    my $a = $ctx->stash('MessageDate');
+    return $ctx->error('The MessageDate tag must be used within the Messages block tag.')
         if !defined $a;
 
     # The following lets the user specify the normal date format modifiers.
