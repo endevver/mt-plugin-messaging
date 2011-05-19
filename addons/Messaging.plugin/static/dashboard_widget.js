@@ -34,7 +34,7 @@ jQuery(document).ready(function($) {
             type: 'POST',
             url: messagingAPIURL + '/statuses/update.json',
             dataType: 'json',
-            data: "status=" + msg,
+            data: 'is_widget=1&status=' + msg,
             headers: { 'Authorization': 'basic ' + basicAuthToken },
             success: status_response,
             error: status_response_error

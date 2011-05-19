@@ -149,6 +149,7 @@ sub handle {
 
 sub get_auth_info {
     my $app = shift;
+    my $q   = $app->query;
     my %param;
 
     my $auth_header = $app->get_header('Authorization')
@@ -163,10 +164,11 @@ sub get_auth_info {
                     'Invalid login, authorization type not recognized.' );
 
     require MIME::Base64;
-    my $creds = MIME::Base64::decode_base64($creds_enc);
+    my $creds                   = MIME::Base64::decode_base64($creds_enc);
     my ( $username, $password ) = split( ':', $creds );
-
-    ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, password => $password}));
+    my $pass_crypted            = $q->param('is_widget') ? 1 : 0;
+    
+    ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, password => $password, crypted => $pass_crypted }));
 
     # Lookup user record
     my $user;
@@ -180,7 +182,7 @@ sub get_auth_info {
       unless $user
           && $user->is_active
           && $user->password
-          && $user->is_valid_password( $password, 1 );
+          && $user->is_valid_password( $password, $pass_crypted );
 
     \%param;
 }
