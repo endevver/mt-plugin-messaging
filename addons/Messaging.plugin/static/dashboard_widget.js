@@ -39,6 +39,7 @@ jQuery(document).ready(function($) {
             success: status_response,
             error: status_response_error
         });
+        return false;
     });
 });
 
@@ -83,10 +84,11 @@ function parse_public_timeline(data,textStatus,jqXHR) {
     for (var i=0; i<json.statuses.status.length; i++) {
         var status = json.statuses.status[i];
 
+        var rowclass;
         if (i % 2)
-            var rowclass = 'odd';
+            rowclass = 'odd';
         else
-            var rowclass = 'even';
+            rowclass = 'even';
 
         jQuery('ul#messaging-public-timeline')
             .append(
