@@ -142,15 +142,15 @@
 
         for (var i=0; i<json.statuses.status.length; i++) {
             var status = json.statuses.status[i];
-            
+
             if (i % 2)
-                var class = 'odd';
+                var rowclass = 'odd';
             else
-                var class = 'even';
+                var rowclass = 'even';
 
             jQuery('ul#messaging-public-timeline')
                 .append(
-                    jQuery('<li class="message ' + class + '"></li>').html(
+                    jQuery('<li class="message ' + rowclass + '"></li>').html(
                         '<div class="text">' + status.text + '</div>'
                         + '<div class="author">' + status.user.name + '</div>'
                         + '<div class="created">' + status.created_at + '</div>'
