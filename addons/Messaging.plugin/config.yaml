@@ -1,7 +1,7 @@
 id: Messaging
 key: Messaging
 name: Messaging
-version: 1.0.6
+version: 1.0.7
 description: Provides a simple messaging service based on the Twitter API.
 author_name: "Endevver, LLC"
 author_link: http://www.endevver.com/
