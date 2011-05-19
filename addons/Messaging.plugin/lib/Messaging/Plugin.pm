@@ -146,7 +146,7 @@ sub dashboard_widget {
     my $author = MT->model('author')->load( $app->user->id );
     require MIME::Base64;
     my $b64 = MIME::Base64::encode_base64(
-        $author->name . ':' . $author->api_password
+        $author->name . ':' . $author->password
     );
 
     # Author->api_password seems to add a trailing new line?

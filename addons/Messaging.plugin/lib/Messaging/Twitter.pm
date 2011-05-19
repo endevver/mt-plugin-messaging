@@ -156,38 +156,31 @@ sub get_auth_info {
 
     ###l4p $logger->info( 'Authorization header present: ' . $auth_header );
     my ( $type, $creds_enc ) = split( " ", $auth_header );
-    if ( lc($type) eq 'basic' ) {
-        require MIME::Base64;
-        my $creds = MIME::Base64::decode_base64($creds_enc);
-        my ( $username, $password ) = split( ':', $creds );
 
-        ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, pass => $password}));
+    # Unsupported auth type
+    lc($type) eq 'basic'
+        or return $app->auth_failure( 501,
+                    'Invalid login, authorization type not recognized.' );
 
-        # Lookup user record
-        my $user = MT::Author->load( { name => $username, type => 1 } )
-          or return $app->auth_failure( 403, 'Invalid login' );
+    require MIME::Base64;
+    my $creds = MIME::Base64::decode_base64($creds_enc);
+    my ( $username, $password ) = split( ':', $creds );
+
+    ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, password => $password}));
+
+    # Lookup user record
+    my $user;
+    if ( $user = MT->model('user')->load({ name => $username, type => 1 }) ) {
         $param{username} = $user->name;
         $app->user($user);
-
-        # Make sure use has an API Password set
-        return $app->auth_failure( 403, 'Invalid login. API Password not set.' )
-          unless $user->api_password;
-
-
-        # Make sure user is active
-        return $app->auth_failure( 403, 'Invalid login. User is not active.' )
-          unless $user->is_active;
-
-        # Check to see if passwords match
-        return $app->auth_failure( 403, 'Invalid login. Password mismatch.' )
-          unless $user->api_password eq $password;
-
     }
-    else {
 
-        # Unsupported auth type
-        return $app->auth_failure( 501, 'Invalid login, authorization type not recognized.' );
-    }
+    # Check for active user and valid password
+    return $app->auth_failure( 403, 'Invalid login.' )
+      unless $user
+          && $user->is_active
+          && $user->password
+          && $user->is_valid_password( $password, 1 );
 
     \%param;
 }
