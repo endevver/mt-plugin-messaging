@@ -1,10 +1,10 @@
 jQuery(document).ready(function() {
     // Run when the page loads!
-    update();
+    update_public_timeline();
 
     // And when clicked!
     jQuery('#update-public-timeline').click(function(){
-        update();
+        update_public_timeline();
     });
 
     // When a status message is typed in, provide a character countdown.
@@ -51,7 +51,7 @@ function status_response_error(jqXHR,textStatus,error) {
 }
 
 function status_response(data,textStatusjqXHR) {
-    update();
+    update_public_timeline();
     jQuery('input#message-text').val('');
     jQuery('#message-post-spinner').hide();
     jQuery('#message-text-counter').html('140');
@@ -60,7 +60,7 @@ function status_response(data,textStatusjqXHR) {
     jQuery('button#post-message').removeAttr('disabled');
 }
 
-function update() {
+function update_public_timeline() {
     jQuery.ajax({
         type: 'POST',
         url: messagingAPIURL + '/statuses/public_timeline.json',
