@@ -66,12 +66,19 @@ function status_response(data,textStatusjqXHR) {
 }
 
 function update_public_timeline() {
+    jQuery('#update-public-timeline').hide();
+    jQuery('#messaging-public-timeline li').hide()
+    jQuery('#updating-public-timeline').show();
     jQuery.ajax({
         type: 'POST',
         url: messagingAPIURL + '/statuses/public_timeline.json',
         success: parse_public_timeline
     });
+    jQuery('#updating-public-timeline').hide();
+    jQuery('#messaging-public-timeline li').show('slow')
+    jQuery('#update-public-timeline').show('slow');
 }
+
 function parse_public_timeline(data,textStatus,jqXHR) {
     // Convert the returned data into a JSON object
     //var json = eval('(' + data + ')');
