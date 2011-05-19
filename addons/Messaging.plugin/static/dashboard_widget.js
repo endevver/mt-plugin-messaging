@@ -1,16 +1,16 @@
-jQuery(document).ready(function() {
+jQuery(document).ready(function($) {
     // Run when the page loads!
     update_public_timeline();
 
     // And when clicked!
-    jQuery('#update-public-timeline').click(function(){
+    $('#update-public-timeline').click(function(){
         update_public_timeline();
     });
 
     // When a status message is typed in, provide a character countdown.
-    jQuery('input#message-text').keyup(function(){
-        var num = 140 - jQuery('input#message-text').val().length;
-        jQuery('#message-text-counter').text(num);
+    $('input#message-text').keyup(function(){
+        var num = 140 - $('input#message-text').val().length;
+        $('#message-text-counter').text(num);
 
         if (num == -1) {
             alert('A maximum of 140 characters is allowed.');
@@ -18,19 +18,19 @@ jQuery(document).ready(function() {
     });
 
     // Post a status message.
-    jQuery('button#post-message').click(function(){
-        if ( jQuery('input#message-text').val() == '' ) {
+    $('button#post-message').click(function(){
+        if ( $('input#message-text').val() == '' ) {
             alert('Enter a message before posting.');
             return false;
         }
 
-        jQuery('button#post-message').addClass('disabled-button');
-        jQuery('#message-post-spinner').show();
-        jQuery('#message-text-counter').parent().hide();
-        jQuery('button#post-message').attr('disabled','disabled');
+        $('button#post-message').addClass('disabled-button');
+        $('#message-post-spinner').show();
+        $('#message-text-counter').parent().hide();
+        $('button#post-message').attr('disabled','disabled');
         
-        var msg = jQuery('input#message-text').val();
-        jQuery.ajax({
+        var msg = $('input#message-text').val();
+        $.ajax({
             type: 'POST',
             url: messagingAPIURL + '/statuses/update.json',
             dataType: 'json',
@@ -46,18 +46,22 @@ function status_response_error(jqXHR,textStatus,error) {
     alert('Post failed! ' + error);
     jQuery('#message-post-spinner').hide();
     jQuery('#message-text-counter').parent().show();
-    jQuery('button#post-message').removeClass('disabled-button');
-    jQuery('button#post-message').removeAttr('disabled');
+    jQuery('button#post-message')
+      .removeClass('disabled-button')
+      .removeAttr('disabled');
 }
 
 function status_response(data,textStatusjqXHR) {
     update_public_timeline();
     jQuery('input#message-text').val('');
     jQuery('#message-post-spinner').hide();
-    jQuery('#message-text-counter').html('140');
-    jQuery('#message-text-counter').parent().show();
-    jQuery('button#post-message').removeClass('disabled-button');
-    jQuery('button#post-message').removeAttr('disabled');
+    jQuery('#message-text-counter')
+      .html('140')
+      .parent()
+      .show();
+    jQuery('button#post-message')
+      .removeClass('disabled-button')
+      .removeAttr('disabled');
 }
 
 function update_public_timeline() {
