@@ -563,6 +563,11 @@ sub update {
 
     ###l4p $logger->debug("Saving tweet: $msg");
     my $m = MT->model('tw_message')->new;
+
+    # TODO - parse out #hashtags and create MT::Tags for them
+    # TODO - parse out and REMOVE from $msg and "private #hashtags"
+    # Private hash tags should be in the format #@foo
+
     $m->text($msg);
     $m->created_by( $app->user->id );
     $m->status( MT->model('tw_message')->SHOW() );
