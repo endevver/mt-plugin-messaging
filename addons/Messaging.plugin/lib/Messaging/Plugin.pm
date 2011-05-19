@@ -81,12 +81,13 @@ sub list {
 
 sub hide {
     my ($app) = @_;
+    my $q     = $app->query;
     $app->validate_magic or return;
 
     return $app->show_error("Permission denied.")
         unless $app->user->is_superuser();
 
-    my @message_ids = $app->param('id');
+    my @message_ids = $q->param('id');
     foreach my $message_id (@message_ids) {
         my $message = MT->model('tw_message')->load($message_id)
             or next;
@@ -100,12 +101,13 @@ sub hide {
 
 sub show {
     my ($app) = @_;
+    my $q     = $app->query;
     $app->validate_magic or return;
 
     return $app->show_error("Permission denied.")
         unless $app->user->is_superuser();
 
-    my @message_ids = $app->param('id');
+    my @message_ids = $q->param('id');
     foreach my $message_id (@message_ids) {
         my $message = MT->model('tw_message')->load($message_id)
             or next;
@@ -119,12 +121,13 @@ sub show {
 
 sub delete {
     my ($app) = @_;
+    my $q     = $app->query;
     $app->validate_magic or return;
 
     return $app->show_error("Permission denied.")
         unless $app->user->is_superuser();
 
-    my @message_ids = $app->param('id');
+    my @message_ids = $q->param('id');
     foreach my $message_id (@message_ids) {
         my $message = MT->model('tw_message')->load($message_id)
             or next;
