@@ -59,6 +59,7 @@ tags:
     block:
         Messages: Messaging::Tags::messages
     function:
+        MessagingAPIURL: Messaging::Tags::messaging_api_url
         MessageID:       Messaging::Tags::message_id
         MessageText:     Messaging::Tags::message_text
         MessageGeoLong:  Messaging::Tags::message_geo_long
