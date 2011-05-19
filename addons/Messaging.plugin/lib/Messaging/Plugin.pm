@@ -24,10 +24,7 @@ sub api_url {
 
     # Otherwise, derive the API URL from the CGIPath and MessagingScript
     # config directive values, the latter of which defaults to "twitter.cgi".
-    $env = MT::Util::caturl(
-        $app->config->CGIPath,
-        $app->config->MessagingScript,
-    );
+    $env = caturl( $app->config->CGIPath, $app->config->MessagingScript );
 }
 
 # A simple listing page.
@@ -43,7 +40,7 @@ sub list {
     my $code = sub {
         my ($obj, $row) = @_;
 
-        my $author = MT::Author->load({ id => $obj->created_by });
+        my $author = MT->model('user')->load({ id => $obj->created_by });
         $row->{author} = $author->name;
 
         my $ts = $obj->created_on;

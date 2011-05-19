@@ -98,8 +98,8 @@ sub handle {
 
             #$logger->info("It looks like app can process $method");
 
-          # Authentication should be defered to the designated handler since not
-          # all methods require auth.
+          # Authentication should be defered to the designated handler
+          # since not all methods require auth.
             use Data::Dumper;
             ###l4p $logger->info( "Calling $method with args: ", l4mtdump($args) );
             $out = $app->$method($args);
@@ -277,21 +277,34 @@ API rate limited (about rate limiting):
  
 Parameters:
 
-callback: Optional. Only available for JSON format. If supplied, the response will use the JSONP format with a callback of the given name.
+callback: Optional. Only available for JSON format. If supplied, the response
+will use the JSONP format with a callback of the given name.
 
-lang: Optional: Restricts tweets to the given language, given by an ISO 639-1 code.
+lang: Optional: Restricts tweets to the given language, given by an ISO 639-1
+code.
 
-locale: Optional. Specify the language of the query you are sending (only ja is currently effective). This is intended for language-specific clients and the default should work in the majority of cases.
+locale: Optional. Specify the language of the query you are sending (only ja
+is currently effective). This is intended for language-specific clients and
+the default should work in the majority of cases.
 
 rpp: Optional. The number of tweets to return per page, up to a max of 100.
 
-page: Optional. The page number (starting at 1) to return, up to a max of roughly 1500 results (based on rpp * page. Note: there are pagination limits.
+page: Optional. The page number (starting at 1) to return, up to a max of
+roughly 1500 results (based on rpp * page. Note: there are pagination limits.
 
 since_id: Optional. Returns tweets with status ids greater than the given id.
 
-geocode: Optional. Returns tweets by users located within a given radius of the given latitude/longitude.  The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by "latitide,longitude,radius", where radius units must be specified as either "mi" (miles) or "km" (kilometers). Note that you cannot use the near operator via the API to geocode arbitrary locations; however you can use this geocode parameter to search near geocodes directly.
+geocode: Optional. Returns tweets by users located within a given radius of
+the given latitude/longitude. The location is preferentially taking from the
+Geotagging API, but will fall back to their Twitter profile. The parameter
+value is specified by "latitide,longitude,radius", where radius units must be
+specified as either "mi" (miles) or "km" (kilometers). Note that you cannot
+use the near operator via the API to geocode arbitrary locations; however you
+can use this geocode parameter to search near geocodes directly.
 
-show_user: Optional. When true, prepends "<user>:" to the beginning of the tweet. This is useful for readers that do not display Atom's author field. The default is false.
+show_user: Optional. When true, prepends "<user>:" to the beginning of the
+tweet. This is useful for readers that do not display Atom's author field. The
+default is false.
 
 JSON example (truncated):
   {"results":[
