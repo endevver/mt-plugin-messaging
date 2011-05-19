@@ -111,7 +111,7 @@ sub handle {
             ###l4p $logger->info('There was an error processing the request.');
             return;
         }
-        ###l4p $logger->debug( 'Returning: '. l4mtdump($out) );
+        ###l4p $logger->debug( 'Returning: ', l4mtdump($out) );
         return unless defined $out;
         my $out_enc;
         if ( lc($format) eq 'json' ) {
