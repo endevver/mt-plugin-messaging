@@ -44,7 +44,16 @@ jQuery(document).ready(function($) {
 });
 
 function status_response_error(jqXHR,textStatus,error) {
-    alert('Post failed! ' + error);
+    if (error == 'Authorization header missing.') {
+        alert(
+            'Authorization failed. Refer to the Messaging readme for details '
+            + 'on updating your server configuration with the SetEnvIfNoCase '
+            + 'directive.'
+        );
+    }
+    else {
+        alert('Post failed! ' + error);
+    }
     jQuery('#message-post-spinner').hide();
     jQuery('#message-text-counter').parent().show();
     jQuery('button#post-message')
