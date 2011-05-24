@@ -567,6 +567,28 @@ sub update {
     # TODO - parse out #hashtags and create MT::Tags for them
     # TODO - parse out and REMOVE from $msg and "private #hashtags"
     # Private hash tags should be in the format #@foo
+    my @words = split(/\s+/, $msg);
+    my @hashtags;
+    my $private;
+    foreach my $word ( @words ) {
+        # Look for any hashtag in the text
+        if ($word =~ s/#(.*)\b/$1/ ) {
+            # Found a hashtag! Save it to the @hashtags array, to be turned 
+            # into a tag later
+            push @hashtags, $word;
+            
+            # Look more closely at this hashtag: is it supposed to be private?
+            # Private hashtags are saved as tags, and are stripped off of the 
+            # message. If it starts with a "@", it should be private.
+            if ($word =~ /$\@(.*)/) {
+                # Escape the "#" and "@", then append the tag name.
+                $private = '\#\@' . $1;
+                $msg =~ s/\s*$private//;
+            }
+        }
+    }
+
+    $m->tags(@hashtags);
 
     $m->text($msg);
     $m->created_by( $app->user->id );
