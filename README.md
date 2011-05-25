@@ -149,6 +149,15 @@ following like to either in the Apache server config or in
 
     SetEnv MESSAGINGAPIURL http://example.com/path/to/messaging.fcgi
 
+### Time Zones ###
+
+You may notice that your Messages have a time stamp several hours off from what you expect.
+
+Melody and Movable Type always save content with the date-time stamp set to GMT, then applies a time zone shift based upon your blog settings (the Timezone option in Preferences > General). Messaging is a system-level tool that doesn't know about your blog timezone preference. You can make Melody and Movable Type aware of your preference with the [`TimeOffset` Configuration Directive][]. Example:
+
+    TimeOffset -4
+
+[`TimeOffset` Configuration Directive]: http://www.movabletype.org/documentation/appendices/config-directives/timeoffset.html
 <!--
 -----------------------------------------------------------------------------
 -->
