@@ -572,7 +572,7 @@ sub update {
     my $private;
     foreach my $word ( @words ) {
         # Look for any hashtag in the text
-        if ($word =~ s/#(.*)\b/$1/ ) {
+        if ($word =~ s/(#.*)\b/$1/ ) {
             # Found a hashtag! Save it to the @hashtags array, to be turned 
             # into a tag later
             push @hashtags, $word;
@@ -580,7 +580,7 @@ sub update {
             # Look more closely at this hashtag: is it supposed to be private?
             # Private hashtags are saved as tags, and are stripped off of the 
             # message. If it starts with a "@", it should be private.
-            if ($word =~ /$\@(.*)/) {
+            if ($word =~ /$\#\@(.*)/) {
                 # Escape the "#" and "@", then append the tag name.
                 $private = '\#\@' . $1;
                 $msg =~ s/\s*$private//;
