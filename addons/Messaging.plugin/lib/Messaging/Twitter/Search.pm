@@ -1,5 +1,12 @@
 package Messaging::Twitter::Search;
 
+use base qw( Messaging::Twitter );
+use Messaging::Twitter::Util
+  qw( serialize_author twitter_date truncate_tweet serialize_entries is_number 
+      load_friends load_followers latest_status mark_favorites );
+
+use MT::Util qw( decode_url );
+
 =head2 search
 
 URL:
@@ -19,21 +26,37 @@ API rate limited (about rate limiting):
  
 Parameters:
 
-callback: Optional. Only available for JSON format. If supplied, the response will use the JSONP format with a callback of the given name.
+q: Required. Should be URL encoded. Queries will be limited by complexity.
+    http://search.twitter.com/search.json?q=@noradio
 
-lang: Optional: Restricts tweets to the given language, given by an ISO 639-1 code.
+callback: Optional. Only available for JSON format. If supplied, the response
+will use the JSONP format with a callback of the given name.
 
-locale: Optional. Specify the language of the query you are sending (only ja is currently effective). This is intended for language-specific clients and the default should work in the majority of cases.
+lang: Optional: Restricts tweets to the given language, given by an ISO 639-1
+code.
+
+locale: Optional. Specify the language of the query you are sending (only ja
+is currently effective). This is intended for language-specific clients and
+the default should work in the majority of cases.
 
 rpp: Optional. The number of tweets to return per page, up to a max of 100.
 
-page: Optional. The page number (starting at 1) to return, up to a max of roughly 1500 results (based on rpp * page. Note: there are pagination limits.
+page: Optional. The page number (starting at 1) to return, up to a max of
+roughly 1500 results (based on rpp * page. Note: there are pagination limits.
 
 since_id: Optional. Returns tweets with status ids greater than the given id.
 
-geocode: Optional. Returns tweets by users located within a given radius of the given latitude/longitude.  The location is preferentially taking from the Geotagging API, but will fall back to their Twitter profile. The parameter value is specified by "latitide,longitude,radius", where radius units must be specified as either "mi" (miles) or "km" (kilometers). Note that you cannot use the near operator via the API to geocode arbitrary locations; however you can use this geocode parameter to search near geocodes directly.
+geocode: Optional. Returns tweets by users located within a given radius of
+the given latitude/longitude. The location is preferentially taking from the
+Geotagging API, but will fall back to their Twitter profile. The parameter
+value is specified by "latitide,longitude,radius", where radius units must be
+specified as either "mi" (miles) or "km" (kilometers). Note that you cannot
+use the near operator via the API to geocode arbitrary locations; however you
+can use this geocode parameter to search near geocodes directly.
 
-show_user: Optional. When true, prepends "<user>:" to the beginning of the tweet. This is useful for readers that do not display Atom's author field. The default is false.
+show_user: Optional. When true, prepends "<user>:" to the beginning of the
+tweet. This is useful for readers that do not display Atom's author field. The
+default is false.
 
 JSON example (truncated):
   {"results":[
@@ -61,7 +84,63 @@ JSON example (truncated):
 =cut
 
 sub search {
+    my $app      = shift;
+    my ($params) = @_;
 
+    # The word to search on
+    my $q = decode_url( $params->{q} );
+
+    # Give up if there is no search keyword.
+    return { results => '' } if !$q;
+
+    # Search terms to set limit and offset
+    my $terms = {};
+    $terms->{limit}     = $params->{rpp}  ? $params->{rpp}  : '20';
+    $terms->{offset}    = $params->{page} ? $params->{page} : '0';
+    $terms->{sort}      = 'created_on';
+    $terms->{direction} = 'descend';
+    
+    # Hold the selected messages in @messages.
+    my @messages;
+
+    # If the search term starts with a hash, it must be a tag search. This 
+    # works for both normal and private hashtags.
+    if ( $q =~ /^\#/ ) {
+        # Load the specified tag
+        my $tag = MT->model('tag')->load({ name => $q })
+            or return { results => '' }; # Give up if no tag found
+
+        # Now use that tag to find the tag-message intersections
+        my $iter = MT->model('objecttag')->load_iter(
+            {
+                object_datasource => 'tw_message',
+                tag_id     => $tag->id,
+            },
+        );
+
+        # Now we know which messages use this tag, so we can grab them to 
+        # return the search results.
+        while ( my $objecttag = $iter->() ) {
+            my $message = MT->model('tw_message')->load({ id => $objecttag->object_id })
+                or next;
+            push @messages, $message;
+        }
+    }
+
+    # This is a straight keyword search.
+    else {
+        # Use "like" to do the search along with anything ("%") before and
+        # after the keyword to find all matches.
+        @messages = MT->model('tw_message')->load(
+            {
+                text => { like => "%$q%" },
+            },
+            $terms,
+        );
+    }
+
+    my $statuses = serialize_entries( \@messages );
+    return { results => $statuses };
 }
 
 =head2 trends

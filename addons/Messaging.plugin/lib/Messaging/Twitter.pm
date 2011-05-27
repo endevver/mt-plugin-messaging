@@ -45,6 +45,7 @@ our $SUBAPPS = {
     'favorites'       => 'Messaging::Twitter::Favorites',
     'friendships'     => 'Messaging::Twitter::Friends',
     'help'            => 'Messaging::Twitter::Help',
+    'search'          => 'Messaging::Twitter::Search',
 };
 
 sub handle {

@@ -209,6 +209,7 @@ API methods have been implemented and tested in Messaging:
 * `statuses/destroy`
 * `account/verify_credentials`
 * `help/test`
+* `search`
 
 The Dashboard Widget uses Ajax to access `statuses/public_timeline` and
 `statuses/update` so if you want to use Ajax you can find those examples in
@@ -339,7 +340,9 @@ integrated with the rest of the capabilities of Messaging.
 
 ### Search API Methods ###
 
-* `search`
+* `search` - the required "q" parameter is implemented, making keyword and
+  hashtag searches possible. The "rpp" and "page" ("limit" and "offset" in MT
+  parlance) are also implemented for keyword searches.
 * `trends`
 * `trends/current`
 * `trends/daily`
