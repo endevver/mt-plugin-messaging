@@ -17,6 +17,10 @@ sub messages {
     if ($args->{'id'}) {
         $load_terms->{id} = $args->{'id'};
     }
+    else {
+        # Only load the statii that are allowed to be shown.
+        $load_terms->{status} = MT->model('tw_message')->SHOW();
+    }
 
     my $load_args = {};
     $load_args->{sort} = $args->{'sort_by'} || 'created_on';
@@ -24,7 +28,7 @@ sub messages {
     # Allow limit or lastn in case the user can't remember
     $load_args->{limit}  = $args->{'limit'} || $args->{'lastn'} || '10';
     $load_args->{offset} = $args->{'offset'};
-    
+
     my $iter = MT->model('tw_message')->load_iter($load_terms, $load_args);
     
     my $res = '';
@@ -36,17 +40,17 @@ sub messages {
         local $vars->{__odd__} = ($i % 2) == 0; # 0-based $i
         local $vars->{__even__} = ($i % 2) == 1;
         local $vars->{__counter__} = $i+1;
-        
+
         $ctx->stash('MessageID',       $message->id);
         $ctx->stash('MessageText',     $message->text);
         $ctx->stash('MessageGeoLong',  $message->geo_longitude);
         $ctx->stash('MessageGeoLat',   $message->geo_latitude);
         $ctx->stash('MessageAuthorID', $message->created_by);
         $ctx->stash('MessageDate',     $message->created_on);
-        
+
         # Necessary for the date handler in MT::Template::Context to do it's thing.
         local $ctx->{current_timestamp} = $message->created_on;
-    
+
         my $out = $builder->build($ctx, $tokens);
         if (!defined $out) {
             # A error--perhaps a tag used out of context. Report it.
@@ -131,12 +135,13 @@ sub message_tags {
     while ( my $objecttag = $iter->() ) {
         my $tag = MT->model('tag')->load({ id => $objecttag->tag_id })
             or next;
-        
+
         next if $tag->is_private && !$args->{include_private};
+
         local $ctx->{__stash}{Tag} = $tag;
         local $ctx->{__stash}{tag_count} = undef;
         local $ctx->{__stash}{tag_entry_count} = undef;
-        defined(my $out = $builder->build($ctx, $tokens, $cond))
+        defined(my $out = $builder->build($ctx, $tokens))
             or return $ctx->error( $builder->errstr );
         $res .= $glue if defined $glue && length($res) && length($out);
         $res .= $out;
