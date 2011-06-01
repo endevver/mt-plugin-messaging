@@ -243,6 +243,18 @@ user's profile page**.
 [API password]:
   http://www.sixapart.com/movabletype/beta/2005/07/xml-rpc_and_ato.html
 
+
+### Behind the Scenes ###
+
+The Messaging plugin allows for long and short status messages: if you use the
+Dashboard Widget you'll see a 140-character counter. However, this limit is
+only enforced by Javascript: the `mt_tw_message.tw_message_text` field is a
+"mediumtext" field, meaning it is limited to about 16 million characters.
+
+Hashtags (example: #messaging) included in a message are abstracted out of the
+message and converted into Tags. "Private" hashtags are also supported
+(example: #@privatemessaging).
+
 <!--
 -----------------------------------------------------------------------------
 -->
