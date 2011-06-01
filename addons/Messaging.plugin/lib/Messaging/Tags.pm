@@ -110,4 +110,39 @@ sub message_date {
     return MT::Template::Context::_hdlr_date($ctx, $args);
 }
 
+sub message_tags {
+    my ($ctx, $args) = @_;
+    my $m_id = $ctx->stash('MessageID')
+        or return $ctx->error('The MessageTags tag must be used within the Messages blog tag.');
+
+    my $glue = $args->{glue};
+    my $builder = $ctx->stash('builder');
+    my $tokens = $ctx->stash('tokens');
+    my $res = '';
+
+    # Look for any tags associated with this message.
+    my $iter = MT->model('objecttag')->load_iter(
+        {
+            object_datasource => 'tw_message',
+            object_id         => $m_id,
+        },
+    );
+
+    while ( my $objecttag = $iter->() ) {
+        my $tag = MT->model('tag')->load({ id => $objecttag->tag_id })
+            or next;
+        
+        next if $tag->is_private && !$args->{include_private};
+        local $ctx->{__stash}{Tag} = $tag;
+        local $ctx->{__stash}{tag_count} = undef;
+        local $ctx->{__stash}{tag_entry_count} = undef;
+        defined(my $out = $builder->build($ctx, $tokens, $cond))
+            or return $ctx->error( $builder->errstr );
+        $res .= $glue if defined $glue && length($res) && length($out);
+        $res .= $out;
+    }
+
+    return $res;
+}
+
 1;

@@ -58,7 +58,8 @@ list_actions:
 
 tags:
     block:
-        Messages: Messaging::Tags::messages
+        Messages:        Messaging::Tags::messages
+        MessageTags:     Messaging::Tags::message_tags
     function:
         MessagingAPIURL: Messaging::Tags::messaging_api_url
         MessageID:       Messaging::Tags::message_id

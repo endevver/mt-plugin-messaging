@@ -272,9 +272,10 @@ provided by the plugin may be easier.
 
 ### Block Tags ###
 
-Only one block tag is provided: `<mt:Messages>...</mt:Messages>`. This block
-has the meta loop variables available (`__first__`, `__last__`, `__odd__`,
-`__even__`, `__counter__`), and has several valid arguments:
+To publish any detail about a Message use the block tag
+`<mt:Messages>...</mt:Messages>`. This block has the meta loop variables
+available (`__first__`, `__last__`, `__odd__`, `__even__`, `__counter__`), and
+has several valid arguments:
 
 * `id`   
   Specify the ID of a message to grab only that message.
@@ -292,6 +293,18 @@ has the meta loop variables available (`__first__`, `__last__`, `__odd__`,
 
 * `offset`  
   Start the results "n" topics from the start of the list.
+
+If a message contains hashtags, they can be published as tags using the
+`<mt:MessageTags>...</mt:MessageTags>` block tag. Within this block the
+familiar Tag function tags can be used: `<mt:TagName>`, `<mt:TagID>`, etc.
+Valid arguments for this block tag are:
+
+* `glue`
+  A text string that is used to join each of the items together.
+
+* `include_private`
+  Set to "1" to include both public and private (#@example) tags.
+
 
 ### Function Tags ###
 
