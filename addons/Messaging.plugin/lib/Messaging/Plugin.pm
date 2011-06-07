@@ -27,6 +27,44 @@ sub api_url {
     $env = caturl( $app->config->CGIPath, $app->config->MessagingScript );
 }
 
+sub settings {
+    my ($plugin, $param, $scope) = @_;
+    my $app = MT->instance;
+
+    # Grab the ID of the saved template.
+    my $saved_t = $plugin->get_config_value(
+        'republish_templates', 
+        'blog:'.$app->blog->id
+    )
+        || ''; # Fallback to no template previously saved
+
+    # Load all index templates in this blog, which will be used to populate
+    # the settings screen and to mark which template(s) have been previously
+    # saved.
+    my $iter = MT->model('template')->load_iter(
+        {
+            type    => 'index',
+            blog_id => $app->blog->id,
+        },
+        {
+            sort      => 'name',
+            direction => 'ascend',
+        }
+    );
+
+    my ($selected, @template_loop);
+    while ( my $t = $iter->() ) {
+        $selected = $saved_t eq $t->id ? 1 : 0;
+        push @template_loop, { id       => $t->id,
+                               name     => $t->name,
+                               selected => $selected,
+                             };
+    }
+    $param->{index_templates} = \@template_loop;
+
+    return $plugin->load_tmpl('settings.mtml', $param);
+}
+
 # A simple listing page.
 sub list {
     my $app    = shift;
@@ -153,6 +191,45 @@ sub dashboard_widget {
     chomp $b64;
 
     $widget_param->{base64_author_credentials} = $b64;
+}
+
+# After a new message is received, republish the template that has been
+# requested to be republished. Push it to a background task so that the user
+# doesn't have to wait for it to happen.
+sub republish_template {
+    MT::Util::start_background_task(
+        sub {
+            my $app = MT->instance;
+            
+            # Load all instances of the plugindata for the Messaging plugin.
+            # This way we can check each blog that might have a template
+            # marked to be republished.
+            my @plugin_datas = MT->model('plugindata')->load({ plugin => 'Messaging' })
+                or return;
+
+            foreach my $plugin_data (@plugin_datas) {
+                # Grab the template ID that this blog should republish. If
+                # no ID is set, just move on to the next piece of plugindata.
+                my $t_id = $plugin_data->data->{'republish_templates'}
+                    or next;
+
+                my $tmpl = MT->model('template')->load($t_id)
+                    or next;
+
+                # Republish this template! Push a message to the Activity Log
+                # if it failed, though.
+                $app->rebuild_indexes( 
+                    Template => $tmpl,
+                    Force    => 1,
+                )
+                    or MT->log({
+                        blog_id => $tmpl->blog_id,
+                        level   => MT::Log::ERROR(),
+                        message => $app->errstr,
+                    });
+            }
+        }
+    );
 }
 
 1;

@@ -158,6 +158,18 @@ Melody and Movable Type always save content with the date-time stamp set to GMT,
     TimeOffset -4
 
 [`TimeOffset` Configuration Directive]: http://www.movabletype.org/documentation/appendices/config-directives/timeoffset.html
+
+### Republish a Template after Message Submission ###
+
+If you're using the Messaging template tags, you may want to force an index
+template to republish when a new Message is received. In the blog where your
+template can be found, visit Tools > Plugins and find the Messaging plugin.
+Within the plugin's Settings you can find the option to republish a template.
+Select the index template to republish and save.
+
+The selected template will be published (in the background) whenever a new
+Message is received.
+
 <!--
 -----------------------------------------------------------------------------
 -->

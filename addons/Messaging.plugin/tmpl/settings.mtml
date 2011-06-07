@@ -1,0 +1,14 @@
+<mtapp:Setting
+    id="republish_template"
+    label="Republish Template"
+    hint="Specify a template to be published after a message is received."
+    show_hint="1">
+        <select name="republish_templates" style="width: 100%;">
+            <option value="0">None</option>
+        <mt:Loop name="index_templates">
+            <option value="<mt:Var name="id">"<mt:If name="selected"> selected="selected"</mt:If>>
+                <mt:Var name="name" escape="html">
+            </option>
+        </mt:Loop>
+        </select>
+</mtapp:Setting>

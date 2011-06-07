@@ -4,7 +4,10 @@ use strict;
 use warnings;
 use base qw( MT::Plugin );
 
-sub messaging_api_url { MT->component('messaging')->api_url() }
+sub messaging_api_url { 
+    #MT->component('messaging')->api_url() 
+    return Messaging::Plugin::api_url();
+}
 
 sub messages {
     my ($ctx, $args, $cond) = @_;

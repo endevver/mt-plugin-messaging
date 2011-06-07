@@ -600,6 +600,10 @@ sub update {
     }
 
     $m->save or die $m->errstr;
+    
+    use Messaging::Plugin;
+    Messaging::Plugin::republish_template();
+    
     ###l4p $logger->debug('Tweet saved with id: '. $m->id);
     my $statuses = serialize_entries( [$m] );
     return { status => @$statuses[0] };
