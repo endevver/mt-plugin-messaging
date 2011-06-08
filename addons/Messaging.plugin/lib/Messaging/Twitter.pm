@@ -74,8 +74,8 @@ sub handle {
         }
         else {
             ###l4p $logger->info("Unrecognized query format.");
-
-            # TODO - bail
+            $app->error( 500, 'Unrecognized query format.' );
+            return $app->show_error('Unrecognized query format.');
         }
         $app->mode($method);
 
@@ -109,8 +109,8 @@ sub handle {
             ###l4p $logger->info("Drat, app can't process $method");
         }
         if ( $app->{_errstr} ) {
-            ###l4p $logger->info('There was an error processing the request.');
-            return;
+            ###l4p $logger->info('There was an error processing the request: '.$app->{_errstr});
+            return $app->show_error( $app->{_errstr} );
         }
         ###l4p $logger->debug( 'Returning: ', l4mtdump($out) );
         return unless defined $out;
@@ -132,8 +132,6 @@ sub handle {
             );
         }
         else {
-
-            # TODO - respond with indication that it is unsupported format
             return $app->error( 500, 'Unsupported format: ' . $format );
             $app->show_error("Internal Error");
             return;
@@ -218,7 +216,7 @@ sub auth_failure {
     my $app = shift;
     ###l4p $logger->info('Auth failure; sending WWW-Authenticate header...');
     $app->set_header( 'WWW-Authenticate', 'Basic realm="Messaging"' );
-    return $app->error( @_, 1 );
+    $app->error( @_, 1 );
 }
 
 =head2
