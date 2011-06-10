@@ -100,7 +100,7 @@ sub message_geo_lat {
 
 sub message_author_id {
     my ($ctx, $args) = @_;
-    my $a = $ctx->stash('MessageID');
+    my $a = $ctx->stash('MessageAuthorID');
     return $ctx->error('The MessageID tag must be used within the Messages block tag.')
         if !defined $a;
     return $a
