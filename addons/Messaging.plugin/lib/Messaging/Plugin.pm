@@ -213,7 +213,13 @@ sub republish_template {
                 my $t_id = $plugin_data->data->{'republish_templates'}
                     or next;
 
-                my $tmpl = MT->model('template')->load($t_id)
+                # Try to load the template. Be sure to specify the type of 
+                # "index" so that we don't accidentally pick up backup 
+                # templates instead.
+                my $tmpl = MT->model('template')->load({
+                    id   => $t_id,
+                    type => 'index',
+                })
                     or next;
 
                 # Republish this template! Push a message to the Activity Log
