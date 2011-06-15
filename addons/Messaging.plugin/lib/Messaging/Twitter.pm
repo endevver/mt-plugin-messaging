@@ -169,25 +169,194 @@ sub get_auth_info {
     require MIME::Base64;
     my $creds                   = MIME::Base64::decode_base64($creds_enc);
     my ( $username, $password ) = split( ':', $creds );
-    my $pass_crypted            = $q->param('is_widget') ? 1 : 0;
+    my $pass_crypted            = 0;
+
+    # If the API is being accessed via the dashboard widget, then it is safe to
+    # assume that the user has already authenticated, and what is being passed
+    # in is a valid session ID. If they are in the app, then there is no need to
+    # run through the whole rigamorole of user provisioning because the app should
+    # have done that already.
+    # TODO - in this case auth should happen via validating a user's session
+    #        via the MT::Auth driver. For example:
+    # require MT::Auth;
+    # my $ctx = MT::Auth->fetch_credentials( { app => $app } );
+    # unless ($ctx) {
+    #    if ( $app->param('submit') ) {
+    #        return $app->error( $app->translate('Invalid login.') );
+    #    }
+    #    return;
+    # }
+    if ( $q->param('is_widget') ) {
+        $pass_crypted = 1;
+        # Lookup user record
+        my $user;
+        if ( $user = MT->model('user')->load({ name => $username, type => 1 }) ) {
+            $param{username} = $user->name;
+            $app->user($user);
+        }
+        
+        # Check for active user and valid password
+        return $app->auth_failure( 403, 'Invalid login.' )
+            unless $user
+            && $user->is_active
+            && $user->password
+            && $user->is_valid_password( $password, $pass_crypted );
+
+        # Login was successful:
+        return \%param; 
+   }
     
     ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, password => $password, crypted => $pass_crypted }));
 
-    # Lookup user record
-    my $user;
-    if ( $user = MT->model('user')->load({ name => $username, type => 1 }) ) {
-        $param{username} = $user->name;
-        $app->user($user);
+    # If you have gotten this far than we know the user is accessing the API outside the
+    # context of the app. Therefore we need to take them through the entire user provisioning
+    # process.
+
+    # The following code is largely lifted from MT::App::login. The reason it has been copied
+    # here is that MT's auth system delegates authentication handling to the application.
+    # This is due in part to that fact that some auth drivers need to delegate auth and 
+    # redirect a broswer. In this case, redirection is not supported because this is an API,
+    # not a web site's endpoint. So the code has been lifted, and modified to meet the needs
+    # unique to this API.
+    # In this case we do not need to pass pass_crypted to validate credentials because we 
+    # know it is not. 
+    my $res = MT::Auth->validate_credentials({
+        app      => $app,
+        username => $username,
+        password => $password,
+    }) || MT::Auth::UNKNOWN();
+
+    my $user = $username;
+    if ( $res == MT::Auth::UNKNOWN() ) {
+        # Login invalid; auth layer knows nothing of user
+        $app->log(
+            {   message => $app->translate(
+                    "Failed login attempt by unknown user '[_1]' via Messaging API", $user
+                ),
+                level    => MT::Log::WARNING(),
+                category => 'login_user',
+            }
+        ) if defined $user;
+        # Invalidation is not necessary because authentication in HTTP is stateless
+        #MT::Auth->invalidate_credentials( { app => $app } );
+        return $app->auth_failure( 403, 'Invalid login.' );
     }
+    elsif ( $res == MT::Auth::INACTIVE() ) {
 
-    # Check for active user and valid password
-    return $app->auth_failure( 403, 'Invalid login.' )
-      unless $user
-          && $user->is_active
-          && $user->password
-          && $user->is_valid_password( $password, $pass_crypted );
+        # Login invalid; auth layer reports user was disabled
+        $app->log(
+            {   message => $app->translate(
+                    "Failed login attempt by disabled user '[_1]' via Messaging API", $user
+                ),
+                level    => MT::Log::WARNING(),
+                category => 'login_user',
+            }
+        );
+        return $app->auth_failure( 403, $app->translate(
+                'This account has been disabled. Please see your system administrator for access.'
+            )
+        );
+    }
+    elsif ( $res == MT::Auth::PENDING() ) {
 
-    \%param;
+        # Login invalid; auth layer reports user was pending
+        # Check if registration is allowed and if so send special message
+        my $message = $app->translate(
+            'This account has been disabled. Please see your system administrator for access.'
+        );
+        $app->log(
+            {   message => $app->translate(
+                    "Failed login attempt by pending user '[_1]' via Messaging API", $user
+                ),
+                level    => MT::Log::WARNING(),
+                category => 'login_user',
+            }
+        );
+        return $app->auth_failure( 403, $message );
+    }
+    elsif ( $res == MT::Auth::INVALID_PASSWORD() ) {
+
+        # Login invlaid (password error, etc...)
+        return $app->auth_failure( 403, 'Invalid login.' );
+    }
+    elsif ( $res == MT::Auth::DELETED() ) {
+
+        # Login invalid; auth layer says user record has been removed
+        return $app->auth_failure( 
+            $app->translate(
+                'This account has been deleted. Please see your system administrator for access.'
+            )
+        );
+    }
+    elsif ( $res == MT::Auth::REDIRECT_NEEDED() ) {
+        # The authentication driver is delegating authentication to another URL, follow the
+        # designated redirect.
+        return $app->auth_failure( 
+            $app->translate(
+                'The auth driver you are using requires a web browser for authentication. It is not compatible with the Messaging AI.'
+            )
+        );
+    }
+    elsif ( $res == MT::Auth::NEW_LOGIN() ) {
+        # auth layer reports valid user and that this is a new login. act accordingly
+        my $author = $app->user;
+        MT::Auth->new_login( $app, $author );
+    }
+    elsif ( $res == MT::Auth::NEW_USER() ) {
+
+        # auth layer reports that a new user has been created by logging in.
+        my $user_class = $app->user_class;
+        my $author     = $user_class->new;
+        $app->user($author);
+        $author->name( $username ) if $username;
+        $author->type( MT::Author::AUTHOR() );
+        $author->status( MT::Author::ACTIVE() );
+        $author->auth_type( $app->config->AuthenticationModule );
+        my $saved = MT::Auth->new_user( $app, $author );
+        $saved = $author->save unless $saved;
+
+        unless ($saved) {
+            $app->log(
+                {   message => MT->translate(
+                        "User cannot be created: [_1].",
+                        $author->errstr
+                    ),
+                    level    => MT::Log::ERROR(),
+                    class    => 'system',
+                    category => 'create_user'
+                }
+                ),
+                $app->error(
+                MT->translate(
+                    "User cannot be created: [_1].",
+                    $author->errstr
+                )
+                ),
+                return undef;
+        }
+
+        $app->log(
+            {   message => MT->translate(
+                    "User '[_1]' has been created.",
+                    $author->name
+                ),
+                level    => MT::Log::INFO(),
+                class    => 'system',
+                category => 'create_user'
+            }
+        );
+
+        # provision user if configured to do so
+        if ( $app->config->NewUserAutoProvisioning ) {
+            MT->run_callbacks( 'new_user_provisioning', $author );
+        }
+    }
+    ## END CODE TAKEN FROM MT::App.pm
+
+    $param{username} = $user->name;
+    $app->user($user);
+    return \%param;
+
 }
 
 # Some actions can be called without authentication (such as seeing the public 
