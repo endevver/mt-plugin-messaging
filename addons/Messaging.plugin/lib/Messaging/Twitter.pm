@@ -306,28 +306,28 @@ sub get_auth_info {
     elsif ( $res == MT::Auth::NEW_LOGIN() ) {
         # auth layer reports valid user and that this is a new login. act accordingly
         ###l4p $logger->debug('Authorization result: MT::Auth::NEW_LOGIN()');
-        my $author = $app->user;
-        MT::Auth->new_login( $app, $author );
+        $user = $app->user;
+        MT::Auth->new_login( $app, $user );
     }
     elsif ( $res == MT::Auth::NEW_USER() ) {
 
         # auth layer reports that a new user has been created by logging in.
         ###l4p $logger->debug('Authorization result: MT::Auth::NEW_USER()');
         my $user_class = $app->user_class;
-        my $author     = $user_class->new;
-        $app->user($author);
-        $author->name( $username ) if $username;
-        $author->type( MT::Author::AUTHOR() );
-        $author->status( MT::Author::ACTIVE() );
-        $author->auth_type( $app->config->AuthenticationModule );
-        my $saved = MT::Auth->new_user( $app, $author );
-        $saved = $author->save unless $saved;
+        $user = $user_class->new;
+        $app->user($user);
+        $user->name( $username ) if $username;
+        $user->type( MT::Author::AUTHOR() );
+        $user->status( MT::Author::ACTIVE() );
+        $user->auth_type( $app->config->AuthenticationModule );
+        my $saved = MT::Auth->new_user( $app, $user );
+        $saved = $user->save unless $saved;
 
         unless ($saved) {
             $app->log(
                 {   message => MT->translate(
                         "User cannot be created: [_1].",
-                        $author->errstr
+                        $user->errstr
                     ),
                     level    => MT::Log::ERROR(),
                     class    => 'system',
@@ -337,7 +337,7 @@ sub get_auth_info {
                 $app->error(
                 MT->translate(
                     "User cannot be created: [_1].",
-                    $author->errstr
+                    $user->errstr
                 )
                 ),
                 return undef;
@@ -346,7 +346,7 @@ sub get_auth_info {
         $app->log(
             {   message => MT->translate(
                     "User '[_1]' has been created.",
-                    $author->name
+                    $user->name
                 ),
                 level    => MT::Log::INFO(),
                 class    => 'system',
@@ -356,7 +356,7 @@ sub get_auth_info {
 
         # provision user if configured to do so
         if ( $app->config->NewUserAutoProvisioning ) {
-            MT->run_callbacks( 'new_user_provisioning', $author );
+            MT->run_callbacks( 'new_user_provisioning', $user );
         }
     }
     ## END CODE TAKEN FROM MT::App.pm
