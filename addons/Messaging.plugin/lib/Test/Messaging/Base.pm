@@ -21,14 +21,17 @@ __PACKAGE__->mk_classdata(
                         {
                             name => 'twitterapitest_me',
                             nickname => 'Twitter API Test ME',
+                            password => 'password',
                         },
                         {
                             name => 'twitterapitest_friend',
                             nickname => 'Twitter API Test FRIEND',
+                            password => 'password',
                         },
                         {
                             name => 'twitterapitest_other',
                             nickname => 'Twitter API Test OTHER',
+                            password => 'password',
                         }
                     ]
 );
@@ -129,9 +132,10 @@ sub init_test_users {
             name     => $data->{name}, 
             nickname => $data->{nickname},
             auth_type => 'MT',
-            password => '',
         });
+        $user->set_password( $data->{password} );
         $user->save;
+        
         MT->model('association')->link( $user => $role => $self->blog );
         push( @users, $user );
     }
@@ -140,10 +144,10 @@ sub init_test_users {
 
 sub init_client {
     my $self = shift;
-    my $plugin = MT->component('Messaging');
 
     # Get the API URL
-    my $api_url = $plugin->api_url();
+    use Messaging::Plugin;
+    my $api_url = Messaging::Plugin::api_url();
 
     # Load the primary test user's author record
     my ($test_user)
@@ -156,7 +160,8 @@ sub init_client {
         traits   => [qw/Legacy/],
         apiurl   => $api_url,
         username => $test_user->name,
-        password => $test_user->api_password,
+        password => 'password', # This should return the uncrypted password
+                                # in some nice programmatic way, but I'm dumb.
     );
 }
 
