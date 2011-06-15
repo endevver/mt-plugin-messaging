@@ -59,14 +59,7 @@
     <div class="listing-filter-inner inner pkg">
         <div class="filter">
             <div id="filter-title" class="filter-title">
-        <mt:unless name="filter">
                 <strong>All Messages</strong>
-        <mt:else>
-            <mt:if name="filter_key">
-                <strong><__trans phrase="Showing only: [_1]" params="<mt:var name="filter_label">"></strong>
-                <a href="<mt:var name="script_url">?__mode=<mt:var name="mode" escape="url"><mt:if name="blog_id">&amp;blog_id=<mt:var name="blog_id"></mt:if>">[ <__trans phrase="Remove filter"> ]</a>
-            </mt:if>
-        </mt:unless>
             </div>
         </div>
     </div>
