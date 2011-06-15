@@ -229,6 +229,7 @@ sub get_auth_info {
     my $user = $username;
     if ( $res == MT::Auth::UNKNOWN() ) {
         # Login invalid; auth layer knows nothing of user
+        ###l4p $logger->debug('Authorization result: MT::Auth::UNKNOWN()');
         $app->log(
             {   message => $app->translate(
                     "Failed login attempt by unknown user '[_1]' via Messaging API", $user
@@ -244,6 +245,7 @@ sub get_auth_info {
     elsif ( $res == MT::Auth::INACTIVE() ) {
 
         # Login invalid; auth layer reports user was disabled
+        ###l4p $logger->debug('Authorization result: MT::Auth::INACTIVE()');
         $app->log(
             {   message => $app->translate(
                     "Failed login attempt by disabled user '[_1]' via Messaging API", $user
@@ -260,6 +262,7 @@ sub get_auth_info {
     elsif ( $res == MT::Auth::PENDING() ) {
 
         # Login invalid; auth layer reports user was pending
+        ###l4p $logger->debug('Authorization result: MT::Auth::PENDING()');
         # Check if registration is allowed and if so send special message
         my $message = $app->translate(
             'This account has been disabled. Please see your system administrator for access.'
@@ -275,13 +278,15 @@ sub get_auth_info {
         return $app->auth_failure( 403, $message );
     }
     elsif ( $res == MT::Auth::INVALID_PASSWORD() ) {
-
-        # Login invlaid (password error, etc...)
+        
+        # Login invalid (password error, etc...)
+        ###l4p $logger->debug('Authorization result: MT::Auth::INVALID_PASSWORD()');
         return $app->auth_failure( 403, 'Invalid login.' );
     }
     elsif ( $res == MT::Auth::DELETED() ) {
 
         # Login invalid; auth layer says user record has been removed
+        ###l4p $logger->debug('Authorization result: MT::Auth::DELETED()');
         return $app->auth_failure( 
             $app->translate(
                 'This account has been deleted. Please see your system administrator for access.'
@@ -291,6 +296,7 @@ sub get_auth_info {
     elsif ( $res == MT::Auth::REDIRECT_NEEDED() ) {
         # The authentication driver is delegating authentication to another URL, follow the
         # designated redirect.
+        ###l4p $logger->debug('Authorization result: MT::Auth::REDIRECT_NEEDED()');
         return $app->auth_failure( 
             $app->translate(
                 'The auth driver you are using requires a web browser for authentication. It is not compatible with the Messaging AI.'
@@ -299,12 +305,14 @@ sub get_auth_info {
     }
     elsif ( $res == MT::Auth::NEW_LOGIN() ) {
         # auth layer reports valid user and that this is a new login. act accordingly
+        ###l4p $logger->debug('Authorization result: MT::Auth::NEW_LOGIN()');
         my $author = $app->user;
         MT::Auth->new_login( $app, $author );
     }
     elsif ( $res == MT::Auth::NEW_USER() ) {
 
         # auth layer reports that a new user has been created by logging in.
+        ###l4p $logger->debug('Authorization result: MT::Auth::NEW_USER()');
         my $user_class = $app->user_class;
         my $author     = $user_class->new;
         $app->user($author);
