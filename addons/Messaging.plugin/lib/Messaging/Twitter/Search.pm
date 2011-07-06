@@ -97,7 +97,7 @@ sub search {
     my $terms = {};
     $terms->{limit}     = $params->{rpp}  ? $params->{rpp}  : '20';
     $terms->{offset}    = $params->{page} ? $params->{page} * $terms->{limit} : '0';
-    $terms->{sort_by}      = 'created_on';
+    $terms->{sort_by}   = 'created_on';
     $terms->{direction} = 'descend';
     my $since_id = $params->{since_id} ? $params->{since_id} : '0';
     
@@ -115,8 +115,8 @@ sub search {
         my $iter = MT->model('objecttag')->load_iter(
             {
                 object_datasource => 'tw_message',
-                tag_id     => $tag->id,
-                object_id => { value => $since_id, op => ">"},
+                tag_id            => $tag->id,
+                object_id         => { value => $since_id, op => ">"},
             },
            $terms
         );
@@ -137,7 +137,7 @@ sub search {
         @messages = MT->model('tw_message')->load(
             {
                 text => { like => "%$q%" },
-                id => { value => $since_id, op => ">"},
+                id   => { value => $since_id, op => ">"},
             },
             $terms,
         );
