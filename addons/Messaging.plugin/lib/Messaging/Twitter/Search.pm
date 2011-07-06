@@ -96,9 +96,10 @@ sub search {
     # Search terms to set limit and offset
     my $terms = {};
     $terms->{limit}     = $params->{rpp}  ? $params->{rpp}  : '20';
-    $terms->{offset}    = $params->{page} ? $params->{page} : '0';
-    $terms->{sort}      = 'created_on';
+    $terms->{offset}    = $params->{page} ? $params->{page} * $terms->{limit} : '0';
+    $terms->{sort_by}      = 'created_on';
     $terms->{direction} = 'descend';
+    my $since_id = $params->{since_id} ? $params->{since_id} : '0';
     
     # Hold the selected messages in @messages.
     my @messages;
@@ -115,7 +116,9 @@ sub search {
             {
                 object_datasource => 'tw_message',
                 tag_id     => $tag->id,
+                object_id => { value => $since_id, op => ">"},
             },
+           $terms
         );
 
         # Now we know which messages use this tag, so we can grab them to 
@@ -134,6 +137,7 @@ sub search {
         @messages = MT->model('tw_message')->load(
             {
                 text => { like => "%$q%" },
+                id => { value => $since_id, op => ">"},
             },
             $terms,
         );
