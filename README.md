@@ -231,7 +231,7 @@ The Dashboard Widget uses Ajax to access `statuses/public_timeline` and
 AND LIMITATIONS** for details.*
 
 [Twitter API]:
-   http://apiwiki.twitter.com/w/page/22554679/Twitter-API-Documentation
+   http://dev.twitter.com/doc
 
 #### Authenticating with the Messaging API ####
 
