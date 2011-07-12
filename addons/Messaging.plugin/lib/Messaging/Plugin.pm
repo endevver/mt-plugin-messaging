@@ -157,6 +157,7 @@ sub show {
     $app->call_return;
 }
 
+# Delete a message (or messages) from on the admin listing screen.
 sub delete {
     my ($app) = @_;
     my $q     = $app->query;
@@ -169,7 +170,28 @@ sub delete {
     foreach my $message_id (@message_ids) {
         my $message = MT->model('tw_message')->load($message_id)
             or next;
-        $message->remove;
+
+        # Delete any saved object-tag associations before trying to delete the 
+        # message itself. I don't think this step should be necessary -- when
+        # removing the message, the objecttag record(s) should be 
+        # automatically removed at the same time as part of $message->remove.
+        # However, not including this code lets a weird bug show up: when 
+        # deleting 3 (or more) messages from the admin interface, where the 
+        # first and last message have tags but the middle message does not, an
+        # error returns. The error is: Cannot find column 'blog_id' for class 
+        # 'Messaging::Message' at lib/MT/Tag.pm line 47, and it occurs when 
+        # trying to delete the second message, which has no tags.
+        my $iter = MT->model('objecttag')->load_iter({
+            object_datasource => 'tw_message',
+            object_id         => $message->id,
+        });
+        while ( my $objecttag = $iter->() ) {
+            ###l4p $logger->info('Removing object-tag association for message '.$message->id.' and tag '.$objecttag->tag_id);
+            $objecttag->remove() or die $objecttag->errstr;
+        }
+
+        ###l4p $logger->info('Deleting message: '.$message->id.', '.$message->text);
+        $message->remove or die $message->errstr;
     }
 
     $app->add_return_arg( message_deleted => 1 );
