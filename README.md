@@ -267,9 +267,51 @@ Hashtags (example: #messaging) included in a message are abstracted out of the
 message and converted into Tags. "Private" hashtags are also supported
 (example: #@privatemessaging).
 
+### Searching ###
+
+The Messaging plugin includes a search feature, just as the Twitter API does.
+Refer to the Twitter API documentation to use the search feature; below is
+some implementation information discovered during use that may not be clear
+from the Twitter docs.
+
+use the required `q` parameter to make keyword and hashtag searches. The `rpp`
+and `page` ("limit" and "offset" in MT parlance) are also implemented for
+keyword searches. Additional valid parameters: `since_id`, `max_id`.
+
+Search results contain the following keys: `results`, `page`, `max_id`,
+`next_page`, `query`, `refresh_url`, `since_id`, `results_per_page`.
+
+* `max_id` is set to the highest ID in of the messages shown in the current
+  results set if no `max_id` parameter was supplied in the query. This means
+  that if you do something like `q=foobar&page=2`, you will get the highest ID
+  on page 2, not the highest ID from the (invisible) page 1.
+
+* If `max_id` is set in the query string, the `max_id` in the result set will
+  match with it, even if the message with that actual ID is not visible on the
+  current page. Example: `q=foobar&page=2&max_id=30` will show items from 15
+  on down, as item 30 is on page 1.
+
+* The `next_page` parameter always contains the `max_id` string, to guarantee
+  a continuous list, even if new messages are inserted in the stream between
+  queries.
+
+* Note that if you keep going for "next page" url the `max_id` always remains
+  the same, since the 'next page' URL contains a `max_id` parameter.
+
+* The `refresh_url` parameter will put you at the most recent message in the
+  stream matching the query, but results are guaranteed to be more recent than
+  the `since_id` specified. Note that you may have to query page=2, page=3...
+  and so on to get all the messages, until no more messages are returned. Also
+  note that each of these pages will have its own `refresh_url` with a
+  different `since_id`, and that you shouldn't "follow" them like the
+  `next_page` URL if you are attempting to pull in a list of updates more
+  recent than a specific `since_id`. To do that you have to stick with the
+  same `since_id` and keep incrementing the page number until you run out of
+  results.
+
 <!--
------------------------------------------------------------------------------
--->
+ -----------------------------------------------------------------------------
+  -->
 
 ## TEMPLATE TAGS ##
 
@@ -362,7 +404,7 @@ Display the 10 newest messages:
         <mt:If name="__last__">
             </ul>
         </mt:If>
-    </mt:HotTopics>
+    </mt:Messages>
 
 <!--
 -----------------------------------------------------------------------------
@@ -377,9 +419,7 @@ integrated with the rest of the capabilities of Messaging.
 
 ### Search API Methods ###
 
-* `search` - the required "q" parameter is implemented, making keyword and
-  hashtag searches possible. The "rpp" and "page" ("limit" and "offset" in MT
-  parlance) are also implemented for keyword searches.
+* `search` - Implemented according to the notes above.
 * `trends`
 * `trends/current`
 * `trends/daily`
