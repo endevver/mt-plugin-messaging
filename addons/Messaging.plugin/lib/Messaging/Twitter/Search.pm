@@ -95,15 +95,19 @@ sub search {
 
     # Search terms to set limit and offset
     my $terms = {};
-    $terms->{limit}     = $params->{rpp}  ? $params->{rpp}  : 15;
-    $terms->{offset}    = $params->{page} ? ($params->{page} - 1) * $terms->{limit} : 0;
-    $terms->{sort_by}      = 'created_on';
+    $terms->{limit}     = $params->{rpp}  ? $params->{rpp} : 15;
+    $terms->{offset}    = $params->{page} 
+                            ? ($params->{page} - 1) * $terms->{limit} 
+                            : 0;
+    $terms->{sort_by}   = 'created_on';
     $terms->{direction} = 'descend';
-    $terms->{range} = { object_id => 1 };
+    $terms->{range}     = { object_id => 1 };
+
     my $since_id = $params->{since_id} ? $params->{since_id} : 0;
-    my $max_id = $params->{max_id} ? $params->{max_id} : '99999999999999';
-    my $page = $params->{page} ? $params->{page} : 1;
-    my $rpp = $params->{rpp} ? $params->{rpp} : 15;
+    my $max_id   = $params->{max_id} ? $params->{max_id} : '99999999999999';
+    my $page     = $params->{page} ? $params->{page} : 1;
+    my $rpp      = $params->{rpp} ? $params->{rpp} : 15;
+
     # Hold the selected messages in @messages.
     my @messages;
 
@@ -118,8 +122,8 @@ sub search {
         my $iter = MT->model('objecttag')->load_iter(
             {
                 object_datasource => 'tw_message',
-                tag_id     => $tag->id,
-                object_id => [ $since_id, $max_id ],
+                tag_id            => $tag->id,
+                object_id         => [ $since_id, $max_id ],
             },
            $terms
         );
@@ -140,7 +144,7 @@ sub search {
         @messages = MT->model('tw_message')->load(
             {
                 text => { like => "%$q%" },
-                id => [ $since_id, $max_id ],
+                id   => [ $since_id, $max_id ],
             },
             $terms,
         );
@@ -152,7 +156,9 @@ sub search {
     # If it has been set, show its value (the current results page will be paginated started from this
     # ID in this case.)
     
-    if ($max_id eq '99999999999999'){$max_id = $messages[0]->id}
+    if ($max_id eq '99999999999999') {
+        $max_id = $messages[0]->id;
+    }
     
     my $nextpageparameters = "?q=".encode_url($q)."&page=".($page+1);
     if ($rpp and ($rpp != 15)) {$nextpageparameters .= "&rpp=".$rpp;}
@@ -160,14 +166,15 @@ sub search {
     
     my $refreshpageparameters = "since_id=$max_id&q=".encode_url($q);
     
-    return { results => $statuses, 
-    	    page => $page, 
-    	    max_id => $max_id, 
-    	    next_page => $nextpageparameters ,
-    	    query => "$q",
-    	    refresh_url => $refreshpageparameters,
-    	    since_id => $since_id, 
-    	    results_per_page => $rpp? $rpp : 15,
+    return { 
+        results          => $statuses, 
+        page             => $page, 
+        max_id           => $max_id, 
+        next_page        => $nextpageparameters,
+        query            => "$q",
+        refresh_url      => $refreshpageparameters,
+        since_id         => $since_id, 
+        results_per_page => $rpp? $rpp : 15,
     };
 }
 
