@@ -103,7 +103,7 @@ sub truncate_tweet {
 
 sub twitter_date {
     my ($ts) = @_;
-    return format_ts( '%a %b %e %H:%M:%S %Y', $ts );
+    return format_ts( '%a, %b %e %Y %H:%M:%S', $ts );
 }
 
 sub is_number {
