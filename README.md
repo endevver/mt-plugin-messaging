@@ -47,12 +47,12 @@ plugin **does not** do:
 
 ### Prerequisites ###
 
-* [Melody Compatibility Layer][] (not required for Melody)
+* Movable Type 4.x or 5.1+
 
 ### Download ###
 
 The latest version of the plugin can be downloaded from the its
-[Github repo][]. [Packaged downloads][] are also available if you prefer.
+[Github repo][]. [Tagged downloads][] are also available if you prefer.
 
 After downloading and unpacking the distribution archive, follow the
 directions in the [standard plugin installation][] tutorial.
@@ -86,12 +86,10 @@ in either:
     (that you will likely have to create) in the same directory as the script
     (which, again, is probably `MT_HOME`).
 
-[Melody Compatibility Layer]:
-   https://github.com/endevver/mt-plugin-melody-compat
 [Github repo]:
    https://github.com/endevver/mt-plugin-messaging
-[Packaged downloads]:
-   https://github.com/endevver/mt-plugin-messaging/downloads
+[Tagged downloads]:
+   https://github.com/endevver/mt-plugin-messaging/tags
 [standard plugin installation]: http://tinyurl.com/easy-plugin-install
 [SetEnvIfNoCase]:
    http://httpd.apache.org/docs/current/mod/mod_setenvif.html#setenvifnocase
