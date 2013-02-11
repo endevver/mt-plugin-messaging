@@ -109,7 +109,7 @@ function parse_public_timeline(data,textStatus,jqXHR) {
         jQuery('ul#messaging-public-timeline')
             .append(
                 jQuery('<li class="message ' + rowclass + '"></li>').html(
-                    '<div class="text">' + status.text + '</div>'
+                    '<div class="message-text">' + status.text + '</div>'
                     + '<div class="author">' + status.user.name + '</div>'
                     + '<div class="created">' + status.created_at + '</div>'
                 )

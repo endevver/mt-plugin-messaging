@@ -27,6 +27,16 @@ callbacks:
 applications:
     cms:
         menus:
+            # MT5
+            tools:messages:
+                label: 'Messages'
+                order: 9000
+                mode: list
+                args:
+                    _type: tw_message
+                view: system
+                permission: administer
+            # MT4
             manage:messages:
                 label: 'Messages'
                 order: 9000
@@ -58,6 +68,16 @@ list_actions:
             label: 'Delete'
             code: Messaging::Plugin::delete
             permission: administer
+        hide:
+            label: 'Hide'
+            order: 100
+            mode: hide_message
+            button: 1
+        show:
+            label: 'Show'
+            order: 200
+            mode: show_message
+            button: 1
 
 tags:
     block:
@@ -79,4 +99,12 @@ settings:
     republish_templates:
         default: '0'
         scope: blog
+
+listing_screens:
+    tw_message:
+        primary: 'text'
+        default_sort_key: 'created_on'
+
+list_properties:
+    tw_message: $Messaging::Messaging::Message::list_properties
 
