@@ -148,7 +148,7 @@ sub handle {
 
 sub get_auth_info {
     my $app = shift;
-    my $q   = $app->query;
+    my $q   = $app->can('query') ? $app->query : $app->param;
     my %param;
 
     # If the user is already a valid, logged-in user, bypass all this auth stuff.

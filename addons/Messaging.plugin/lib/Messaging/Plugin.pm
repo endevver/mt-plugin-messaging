@@ -68,7 +68,7 @@ sub settings {
 # A simple listing page.
 sub list {
     my $app    = shift;
-    my $q      = $app->query;
+    my $q      = $app->can('query') ? $app->query : $app->param;
     my %param  = @_;
     my $plugin = MT->component('Messaging');
 
@@ -119,7 +119,7 @@ sub list {
 
 sub hide {
     my ($app) = @_;
-    my $q     = $app->query;
+    my $q     = $app->can('query') ? $app->query : $app->param;
     $app->validate_magic or return;
 
     return $app->show_error("Permission denied.")
@@ -139,7 +139,7 @@ sub hide {
 
 sub show {
     my ($app) = @_;
-    my $q     = $app->query;
+    my $q     = $app->can('query') ? $app->query : $app->param;
     $app->validate_magic or return;
 
     return $app->show_error("Permission denied.")
@@ -160,7 +160,7 @@ sub show {
 # Delete a message (or messages) from on the admin listing screen.
 sub delete {
     my ($app) = @_;
-    my $q     = $app->query;
+    my $q     = $app->can('query') ? $app->query : $app->param;
     $app->validate_magic or return;
 
     return $app->show_error("Permission denied.")
