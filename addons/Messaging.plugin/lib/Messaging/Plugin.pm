@@ -198,9 +198,10 @@ sub delete {
     $app->call_return;
 }
 
+# The dashboard widget is an example of an interface to the Messaging plugin.
 sub dashboard_widget {
     my ($app, $tmpl, $widget_param) = @_;
-    
+
     # The author password needs to be part of the Ajax request to post a new
     # message.
     my $author = MT->model('author')->load( $app->user->id );

@@ -150,7 +150,7 @@ sub get_auth_info {
     my $app = shift;
     my $q   = $app->query;
     my %param;
-    
+
     # If the user is already a valid, logged-in user, bypass all this auth stuff.
     my ($user) = $app->login();
     return \%param if $user;
@@ -194,7 +194,7 @@ sub get_auth_info {
             $param{username} = $user->name;
             $app->user($user);
         }
-        
+
         # Check for active user and valid password
         return $app->auth_failure( 403, 'Invalid login.' )
             unless $user
@@ -203,9 +203,9 @@ sub get_auth_info {
             && $user->is_valid_password( $password, $pass_crypted );
 
         # Login was successful:
-        return \%param; 
+        return \%param;
    }
-    
+
     ###l4p $logger->debug( 'Credentials: ', l4mtdump({ username => $username, password => $password, crypted => $pass_crypted }));
 
     # If you have gotten this far than we know the user is accessing the API outside the
@@ -214,12 +214,12 @@ sub get_auth_info {
 
     # The following code is largely lifted from MT::App::login. The reason it has been copied
     # here is that MT's auth system delegates authentication handling to the application.
-    # This is due in part to that fact that some auth drivers need to delegate auth and 
+    # This is due in part to that fact that some auth drivers need to delegate auth and
     # redirect a broswer. In this case, redirection is not supported because this is an API,
     # not a web site's endpoint. So the code has been lifted, and modified to meet the needs
     # unique to this API.
-    # In this case we do not need to pass pass_crypted to validate credentials because we 
-    # know it is not. 
+    # In this case we do not need to pass pass_crypted to validate credentials because we
+    # know it is not.
     my $res = MT::Auth->validate_credentials({
         app      => $app,
         username => $username,
@@ -278,7 +278,7 @@ sub get_auth_info {
         return $app->auth_failure( 403, $message );
     }
     elsif ( $res == MT::Auth::INVALID_PASSWORD() ) {
-        
+
         # Login invalid (password error, etc...)
         ###l4p $logger->debug('Authorization result: MT::Auth::INVALID_PASSWORD()');
         return $app->auth_failure( 403, 'Invalid login.' );
@@ -287,7 +287,7 @@ sub get_auth_info {
 
         # Login invalid; auth layer says user record has been removed
         ###l4p $logger->debug('Authorization result: MT::Auth::DELETED()');
-        return $app->auth_failure( 
+        return $app->auth_failure(
             $app->translate(
                 'This account has been deleted. Please see your system administrator for access.'
             )
@@ -297,7 +297,7 @@ sub get_auth_info {
         # The authentication driver is delegating authentication to another URL, follow the
         # designated redirect.
         ###l4p $logger->debug('Authorization result: MT::Auth::REDIRECT_NEEDED()');
-        return $app->auth_failure( 
+        return $app->auth_failure(
             $app->translate(
                 'The auth driver you are using requires a web browser for authentication. It is not compatible with the Messaging AI.'
             )
@@ -367,8 +367,8 @@ sub get_auth_info {
 
 }
 
-# Some actions can be called without authentication (such as seeing the public 
-# timeline) while others require authentication (such as posting a status 
+# Some actions can be called without authentication (such as seeing the public
+# timeline) while others require authentication (such as posting a status
 # update.) The authenticate method is called by any action that requires it.
 sub authenticate {
     my $app = shift;
@@ -444,19 +444,19 @@ ERR
 
 URL:
 http://search.twitter.com/search.format
- 
-Formats: 
-json, atom 
- 
+
+Formats:
+json, atom
+
 HTTP Method:
 GET
- 
+
 Requires Authentication (about authentication):
 false
- 
+
 API rate limited (about rate limiting):
 1 call per request
- 
+
 Parameters:
 
 callback: Optional. Only available for JSON format. If supplied, the response
@@ -494,7 +494,7 @@ JSON example (truncated):
      "to_user_id":396524,
      "to_user":"TwitterAPI",
      "from_user":"jkoum",
-     "id":1478555574,   
+     "id":1478555574,
      "from_user_id":1833773,
      "iso_language_code":"nl",
      "source":"<a href="http:\/\/twitter.com\/">twitter<\/a>",

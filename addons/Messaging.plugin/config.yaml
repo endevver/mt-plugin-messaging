@@ -5,9 +5,9 @@ version: 1.0.17
 description: Provides a simple messaging service based on the Twitter API.
 author_name: "Endevver, LLC"
 author_link: http://www.endevver.com/
-# The plugin class causes *config_template to fail when loading the Plugin 
+# The plugin class causes *config_template to fail when loading the Plugin
 # Settings screen?
-#    Cannot find column 'defaults' for class 'MT::Template' at lib/MT/Plugin.pm line 194 
+#    Cannot find column 'defaults' for class 'MT::Template' at lib/MT/Plugin.pm line 194
 #plugin_class: Messaging::Plugin
 schema_version: 3
 static_version: 8
@@ -72,7 +72,7 @@ tags:
         MessageAuthorID: Messaging::Tags::message_author_id
         MessageDate:     Messaging::Tags::message_date
 
-blog_config_template: 
+blog_config_template:
     code: Messaging::Plugin::settings
 
 settings:

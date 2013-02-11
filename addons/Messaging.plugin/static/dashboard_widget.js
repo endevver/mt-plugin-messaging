@@ -28,7 +28,7 @@ jQuery(document).ready(function($) {
         $('#message-post-spinner').show();
         $('#message-text-counter').parent().hide();
         $('button#post-message').attr('disabled','disabled');
-        
+
         var msg = $('input#message-text').val();
         $.ajax({
             type: 'POST',
@@ -93,7 +93,7 @@ function parse_public_timeline(data,textStatus,jqXHR) {
     //var json = eval('(' + data + ')');
     var json = eval( data );
 
-    // Clear existing messages. This could be smarter and include only new 
+    // Clear existing messages. This could be smarter and include only new
     //messages, like twitter, but this just keeps it simple.
     jQuery('ul#messaging-public-timeline').html('');
 

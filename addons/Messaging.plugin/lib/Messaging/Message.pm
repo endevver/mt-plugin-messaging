@@ -1,5 +1,5 @@
 package Messaging::Message;
- 
+
 use strict;
 use warnings;
 
