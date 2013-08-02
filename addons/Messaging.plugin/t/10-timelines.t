@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!perl
 package Test::Messaging::Timelines;
 
 use strict;
