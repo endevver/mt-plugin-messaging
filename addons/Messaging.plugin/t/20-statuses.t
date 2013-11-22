@@ -1,4 +1,4 @@
-#!perl
+#!/usr/local/bin/perl
 package Test::Messaging::Statuses;
 
 use strict;
